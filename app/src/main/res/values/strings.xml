@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">HiddenCity</string>
+    <string name="hiddencity">HiddenCity</string>
+    <string name="nome">Nome</string>
+    <string name="senha">Senha</string>
+    <string name="login">Login</string>
+    <string-array name="compalheiro_opecoes">
+        <item>-----------</item>
+        <item>Socinho</item>
+        <item>Amigos</item>
+        <item>Família</item>
+    </string-array>
+    <string-array name="Interesses_opecoes">
+        <item>-----------</item>
+        <item>Cultura local e história</item>
+        <item>Gastronomia</item>
+        <item>Atividades ao ar livre/natureza</item>
+        <item>Arte e museus</item>
+        <item>Vida noturna e entretenimento</item>
+    </string-array>
+    <string-array name="Orcamento_opecoes">
+        <item>----------</item>
+        <item>Econômico</item>
+        <item>Moderado</item>
+        <item>Luxo</item>
+    </string-array>
+</resources>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Registo">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="15dp"
+                android:id="@+id/Centro"
+                android:padding="30dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="25dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/hiddencity"
+                        android:textColor="#000000"
+                        android:textSize="24sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="#E6E2E2">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/Nome"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Nome"
+                                android:padding="15dp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="#E6E2E2">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/Email"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Email"
+                                android:padding="15dp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="#E6E2E2">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/Numero"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Numero"
+                                android:padding="15dp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="#E6E2E2"
+                            app:passwordToggleEnabled="true">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/Senha"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Palavra-passe"
+                                android:padding="15dp"
+                                android:password="false" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <Button
+                            android:id="@+id/Botaoparacriar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp"
+                            android:text="Registar" />
+
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+    <!--<TextView
+        android:id="@+id/loginTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hiddencity"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="48dp"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+
+    <EditText
+        android:id="@+id/Nome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginTitle"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="78dp"
+        android:layout_marginEnd="24dp"
+        android:hint="@string/nome"
+        android:minHeight="48dp" />
+
+    <EditText
+        android:id="@+id/Numero"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginTitle"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="234dp"
+        android:layout_marginEnd="24dp"
+        android:hint="Numero"
+        android:minHeight="48dp" />
+
+    <EditText
+        android:id="@+id/Email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginTitle"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="155dp"
+        android:layout_marginEnd="24dp"
+        android:hint="Email"
+        android:minHeight="48dp" />
+
+    <EditText
+        android:id="@+id/Senha"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Nome"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="183dp"
+        android:layout_marginEnd="24dp"
+        android:hint="@string/senha"
+        android:inputType="textPassword"
+        android:minHeight="48dp" />
+
+    <Button
+        android:id="@+id/Botaoparacriar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Senha"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="39dp"
+        android:layout_marginEnd="24dp"
+        android:text="Criar Conta" /> -->
+</RelativeLayout>
