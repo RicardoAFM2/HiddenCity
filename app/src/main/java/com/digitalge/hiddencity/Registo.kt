@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import com.digitalge.hiddencity.databinding.ActivityLoginBinding
+import com.digitalge.hiddencity.Base_de_Dados.Utilizador
 import com.digitalge.hiddencity.databinding.ActivityRegistoBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

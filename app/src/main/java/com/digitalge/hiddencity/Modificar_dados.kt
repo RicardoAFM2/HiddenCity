@@ -1,9 +1,14 @@
 package com.digitalge.hiddencity
 
 import android.os.Bundle
+import android.text.InputType
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.digitalge.hiddencity.databinding.ActivityContasBinding
 import com.digitalge.hiddencity.databinding.ActivityModificarDadosBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class Modificar_dados : AppCompatActivity() {
@@ -28,6 +33,8 @@ class Modificar_dados : AppCompatActivity() {
         binding.ModificasNumero.textViewItem.text = "Modificar o numero"
 
         Clicarnaimagem()
+
+
     }
 
     private fun Clicarnaimagem(){
@@ -35,5 +42,36 @@ class Modificar_dados : AppCompatActivity() {
             onBackPressed()
         }
 
+        //binding.ModificasNome.textViewItem.setOnClickListener {
+            //mostrarDialogoDeAtualizacao(1, "Nome")
+        //}
     }
+
+    //private fun mostrarDialogoDeAtualizacao(ID: Int, tipodeDado: String){
+    //val builder = AlertDialog.Builder(this)
+    //builder.setTitle("Modificar $tipodeDado")
+
+    //val input = EditText(this)
+    //input.inputType = InputType.TYPE_CLASS_TEXT
+    //builder.setView(input)
+
+    //builder.setPositiveButton("Confirmar"){_, _ ->
+    //val novoValor = input.text.toString()
+    //if (tipodeDado == "Nome")
+    //atualizarNome(novoValor, ID)
+    //}
+    //builder.setNegativeButton("Cancelar"){dialog, _ ->
+    //dialog.cancel()
+    //}
+    //builder.show()
+    //}
+
+    //private fun atualizarNome(novoNome: String, ID: Int){
+    //CoroutineScope(Dispatchers.IO).launch {
+    //val db = AppDatabase.getDatabase(this@Modificar_dados)
+    //db.UtilizadorDao().atualizarNomeDoUtilizador(novoNome, ID)
+    //}
+    //}
+
+
 }

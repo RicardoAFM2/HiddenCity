@@ -14,9 +14,7 @@ class Home : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         clicarnaimagem()
-
 
     }
 
@@ -54,4 +52,5 @@ class Home : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
 }

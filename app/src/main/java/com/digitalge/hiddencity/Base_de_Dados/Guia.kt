@@ -1,4 +1,4 @@
-package com.digitalge.hiddencity
+package com.digitalge.hiddencity.Base_de_Dados
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

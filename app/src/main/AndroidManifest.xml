@@ -13,6 +13,9 @@
         android:theme="@style/Theme.HiddenCity"
         tools:targetApi="31">
         <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
             android:name=".Modificar_dados"
             android:exported="false" />
         <activity

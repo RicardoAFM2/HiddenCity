@@ -1,9 +1,8 @@
-package com.digitalge.hiddencity
+package com.digitalge.hiddencity.Base_de_Dados
 
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 
 
 @Entity(tableName = "Comentarios_e_Locais",

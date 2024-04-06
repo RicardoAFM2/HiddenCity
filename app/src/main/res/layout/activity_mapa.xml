@@ -110,14 +110,16 @@
       app:layout_constraintTop_toTopOf="@+id/linearLayout2"
       tools:ignore="ObsoleteLayoutParam" />
 
+
   <ImageView
       android:id="@+id/novo_pi"
       android:layout_width="30dp"
       android:layout_height="30dp"
-      android:layout_marginEnd="8dp"
-      android:layout_marginBottom="76dp"
+      android:layout_marginEnd="16dp"
+      android:layout_marginBottom="55dp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:srcCompat="@drawable/icon_novopi" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

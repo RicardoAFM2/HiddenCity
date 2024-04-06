@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.digitalge.hiddencity.databinding.ActivityListaDeFavoritosBinding
-import com.digitalge.hiddencity.databinding.ActivityMapaBinding
 
 class Lista_de_Favoritos : AppCompatActivity() {
 

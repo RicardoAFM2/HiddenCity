@@ -47,7 +47,7 @@ class Login : AppCompatActivity() {
 
             withContext(Dispatchers.Main){
                 if (Utilizador != null){
-                    val intent = Intent(this@Login, Home::class.java)
+                    val intent = Intent(this@Login, MainActivity::class.java)
                     startActivity(intent)
                 }else{
                     Toast.makeText(this@Login, "Nome ou email ou senha incorretos", Toast.LENGTH_SHORT).show()
