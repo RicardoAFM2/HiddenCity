@@ -1,56 +1,63 @@
 package com.digitalge.hiddencity
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
-import com.digitalge.hiddencity.databinding.ActivityMapaBinding
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapsInitializer
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 
-class Mapa : AppCompatActivity() {
+class Mapa : Fragment(), OnMapReadyCallback{
 
-    private lateinit var binding: ActivityMapaBinding
+    private lateinit var mMap: GoogleMap
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        MapsInitializer.initialize(requireContext())
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMapaBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        Clicarnaimagem()
-
-
+        return inflater.inflate(R.layout.fragment_mapa, container, false)
     }
 
-    //quando clico na imagem ir para outra pagina
-    private fun Clicarnaimagem(){
-
-        //Vai para a pagina home
-        binding.home.setOnClickListener{
-            val intent = Intent(this, Home::class.java)
-            startActivity(intent)
-        }
-
-        //Vai para a pagina da conta
-        binding.conta.setOnClickListener{
-            val intent = Intent(this, Contas::class.java)
-            startActivity(intent)
-        }
-
-        //Vai para a pagina Lista de Guia
-        binding.guia.setOnClickListener{
-            val intent = Intent(this, Lista_de_Guia::class.java)
-            startActivity(intent)
-        }
-
-        //Vai para a pagina Lista de Favoritos
-        binding.favoritos.setOnClickListener{
-            val intent = Intent(this, Lista_de_Favoritos::class.java)
-            startActivity(intent)
-        }
-
-        //Vai para a pagina Definição
-        binding.definicao.setOnClickListener{
-            val intent = Intent(this, Definicoes::class.java)
-            startActivity(intent)
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // Inicialize o MapFragment e obtenha uma notificação quando o mapa estiver pronto para ser usado.
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
     }
 
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+        mMap.uiSettings.isZoomControlsEnabled = true
+        enableMyLocation()
+    }
+
+    private fun enableMyLocation() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1)
+            return
+        }
+        mMap.isMyLocationEnabled = true
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            location?.let {
+                val currentLatLng = LatLng(it.latitude, it.longitude)
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 20f))
+            }
+        }
+    }
 }

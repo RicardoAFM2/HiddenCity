@@ -10,14 +10,12 @@ import androidx.room.ForeignKey
         ForeignKey(
             entity = Locais::class,
             parentColumns = ["IdLocais"],
-            childColumns = ["IdLocais"],
-            onDelete = ForeignKey.CASCADE,
+            childColumns = ["IdLocais"]
         ),
         ForeignKey(
             entity = Comentarios::class,
             parentColumns = ["IdComentarios"],
-            childColumns = ["IdComentarios"],
-            onDelete = ForeignKey.CASCADE,
+            childColumns = ["IdComentarios"]
         )
     ],
     primaryKeys = ["IdLocais", "IdComentarios"]
@@ -25,6 +23,6 @@ import androidx.room.ForeignKey
 
 
 data class Comentarios_e_Locais(
-    val IdLocais: Int = 0,
-    val IdComentarios: Int = 0
+    val IdLocais: Int,
+    val IdComentarios: Int
 )

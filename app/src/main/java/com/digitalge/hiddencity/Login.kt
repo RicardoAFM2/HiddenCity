@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.room.Room
 import com.digitalge.hiddencity.databinding.ActivityLoginBinding
 import kotlinx.coroutines.CoroutineScope
@@ -36,26 +38,32 @@ class Login : AppCompatActivity() {
             val intent = Intent(this, Registo::class.java)
             startActivity(intent)
         }
+
     }
 
+
     fun VerrificarLogin(nome: String, email: String, senha: String){
-        val bd = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "Base_de_Dados").build()
+        val bd = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "hiddencity.db").build()
         val UtilizadorDao = bd.UtilizadorDao()
 
         CoroutineScope(Dispatchers.IO).launch {
             val Utilizador = UtilizadorDao.login(nome,email,senha)
-
             withContext(Dispatchers.Main){
                 if (Utilizador != null){
-                    val intent = Intent(this@Login, MainActivity::class.java)
+                    val sharedPref = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                    with(sharedPref.edit()) {
+                        putInt("UteID", Utilizador.IdUtilizador)
+                        apply()
+                    }
+                    val intent = Intent(
+                        this@Login, MainActivity::class.java)
                     startActivity(intent)
+                    finish()
                 }else{
                     Toast.makeText(this@Login, "Nome ou email ou senha incorretos", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
+
 }
-
-
-

@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.security.MessageDigest
+import com.digitalge.hiddencity.Dao.UtilizadorDao
 
 
 class Registo : AppCompatActivity() {
@@ -33,7 +34,7 @@ class Registo : AppCompatActivity() {
 
             val numero = numeroStr.toInt()
 
-            if (nome.isBlank() || email.isBlank() || senha.isBlank() || numero == null) {
+            if (nome.isBlank() || email.isBlank() || senha.isBlank()) {
                 Toast.makeText(
                     this,
                     "Por favor, preencha todos os campos corretamente.",
@@ -46,7 +47,7 @@ class Registo : AppCompatActivity() {
                 CoroutineScope(Dispatchers.IO).launch {
                     database.UtilizadorDao().inserirUtilizadores(utilizador)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@Registo, "Registado com sicesso!", Toast.LENGTH_SHORT)
+                        Toast.makeText(this@Registo, "Registado com sucesso!", Toast.LENGTH_SHORT)
                             .show()
                         val intent = Intent(this@Registo, Login::class.java)
                         startActivity(intent)
@@ -58,7 +59,7 @@ class Registo : AppCompatActivity() {
 
     fun hashSenha(senha: String): String {
         val bytes = senha.toByteArray()
-        val md = MessageDigest.getInstance("SHA.256")
+        val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(bytes)
         return digest.fold("", {str, it -> str + "%02x".format(it)})
     }

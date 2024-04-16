@@ -4,14 +4,14 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import org.w3c.dom.Text
 
 @Entity(tableName = "Guia",
     foreignKeys = [
         ForeignKey(
             entity = Utilizador::class,
             parentColumns = ["IdUtilizador"],
-            childColumns = ["IdUtilizador"],
-            onDelete = ForeignKey.CASCADE
+            childColumns = ["IdUtilizador"]
         )
     ])
 data class Guia(

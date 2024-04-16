@@ -1,12 +1,10 @@
 package com.digitalge.hiddencity
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.digitalge.hiddencity.R
 
-class Pontos_criados : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_pontos_criados)
-    }
+
+import androidx.fragment.app.Fragment
+
+
+class Pontos_criados : Fragment(R.layout.fragment_pontos_criados) {
+
 }

@@ -5,6 +5,7 @@ import android.text.InputType
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.digitalge.hiddencity.Base_de_Dados.Utilizador
 import com.digitalge.hiddencity.databinding.ActivityModificarDadosBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,7 @@ class Modificar_dados : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityModificarDadosBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
+
         setContentView(binding.root)
 
         //Mudar o texto para Modificar o nome
@@ -32,46 +34,49 @@ class Modificar_dados : AppCompatActivity() {
         //Mudar o texto para Modificar o numero
         binding.ModificasNumero.textViewItem.text = "Modificar o numero"
 
-        Clicarnaimagem()
+       // Clicarnaimagem()
 
 
     }
 
-    private fun Clicarnaimagem(){
+    /*private fun Clicarnaimagem(){
         binding.voltar.setOnClickListener {
             onBackPressed()
         }
 
-        //binding.ModificasNome.textViewItem.setOnClickListener {
-            //mostrarDialogoDeAtualizacao(1, "Nome")
-        //}
+        binding.ModificasNome.root.setOnClickListener {
+            // Supondo que 'usuarioAtual' é o seu objeto Utilizador atual.
+            // Você precisará buscar essa informação do banco de dados.
+            mostrarDialogoDeEdicao("Modificar o nome", usuarioAtual.nome, InputType.TYPE_CLASS_TEXT) { novoNome ->
+                // Aqui você atualiza o nome do usuário no banco de dados
+                usuarioAtual.nome = novoNome
+                atualizarUsuario(usuarioAtual)
+            }
+        }
     }
 
-    //private fun mostrarDialogoDeAtualizacao(ID: Int, tipodeDado: String){
-    //val builder = AlertDialog.Builder(this)
-    //builder.setTitle("Modificar $tipodeDado")
 
-    //val input = EditText(this)
-    //input.inputType = InputType.TYPE_CLASS_TEXT
-    //builder.setView(input)
+    private fun atualizarUsuario(utilizador: Utilizador) {
+        CoroutineScope(Dispatchers.IO).launch {
+            database.UtilizadorDao().atualizar(utilizador)
+            // Não esqueça de tratar a UI no thread principal se necessário.
+        }
+    }
+    private fun mostrarDialogoDeEdicao(titulo: String, valorAtual: String, tipoInput: Int, acaoAoConfirmar: (String) -> Unit) {
+        val editText = EditText(this).apply {
+            inputType = tipoInput
+            setText(valorAtual)
+        }
 
-    //builder.setPositiveButton("Confirmar"){_, _ ->
-    //val novoValor = input.text.toString()
-    //if (tipodeDado == "Nome")
-    //atualizarNome(novoValor, ID)
-    //}
-    //builder.setNegativeButton("Cancelar"){dialog, _ ->
-    //dialog.cancel()
-    //}
-    //builder.show()
-    //}
-
-    //private fun atualizarNome(novoNome: String, ID: Int){
-    //CoroutineScope(Dispatchers.IO).launch {
-    //val db = AppDatabase.getDatabase(this@Modificar_dados)
-    //db.UtilizadorDao().atualizarNomeDoUtilizador(novoNome, ID)
-    //}
-    //}
-
+        AlertDialog.Builder(this)
+            .setTitle(titulo)
+            .setView(editText)
+            .setPositiveButton("Confirmar") { _, _ ->
+                val novoValor = editText.text.toString()
+                acaoAoConfirmar(novoValor)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }*/
 
 }

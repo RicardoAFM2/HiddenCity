@@ -20,4 +20,8 @@ interface FormularioBDDao {
 
     @Delete
     suspend fun Eliminar(FormularioBD: FormularioBD)
+
+    @Query("SELECT EXISTS(SELECT * FROM Utilizador WHERE IdUtilizador = :idUtilizador)")
+    suspend fun isUserExists(idUtilizador: Int): Boolean
+
 }

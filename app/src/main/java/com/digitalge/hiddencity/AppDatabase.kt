@@ -1,5 +1,7 @@
 package com.digitalge.hiddencity
 
+
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
@@ -23,7 +25,7 @@ import com.digitalge.hiddencity.Dao.Guia_e_LocaisDao
 import com.digitalge.hiddencity.Dao.LocaisDao
 import com.digitalge.hiddencity.Dao.UtilizadorDao
 
-@Database(entities = [Utilizador::class, Locais::class, Comentarios::class, FormularioBD::class, Guia::class, Favoritos::class, Guia_e_Locais::class, Favoritos_e_Locais::class, Comentarios_e_Locais::class], version = 1, exportSchema = false)
+@Database(entities = [Utilizador::class, Locais::class, Comentarios::class, FormularioBD::class, Guia::class, Favoritos::class, Guia_e_Locais::class, Favoritos_e_Locais::class, Comentarios_e_Locais::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun UtilizadorDao(): UtilizadorDao
     abstract fun LocaisDao(): LocaisDao
@@ -36,18 +38,19 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun Comentarios_e_LocaisDao(): Comentarios_e_LocaisDao
 
     companion object {
-        @Volatile
-        private var INSTANCE: AppDatabase? = null
+        @SuppressLint("StaticFieldLeak")
+        private var instance: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            return INSTANCE ?: synchronized(this){
-                var instance = Room.databaseBuilder(
+            return instance?: synchronized(this){
+                val newInstance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "Base_de_Dados"
-                ).build()
-                INSTANCE = instance
-                instance
+                    "hiddencity.db"
+                ).createFromAsset("hiddencity.db")
+                    .build()
+                    instance = newInstance
+                    newInstance
             }
         }
 

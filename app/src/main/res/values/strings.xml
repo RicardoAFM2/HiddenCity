@@ -4,6 +4,8 @@
     <string name="nome">Nome</string>
     <string name="senha">Senha</string>
     <string name="login">Login</string>
+    <string name="voltar_imagem_do_local_com_bot_es_de_navega_o_sobrepostos"><![CDATA[Voltar /> <!-- Imagem do Local com Botões de Navegação Sobrepostos -->]]></string>
+    <string name="adicionar_aos_favoritos">Adicionar aos favoritos</string>
     <string-array name="compalheiro_opecoes">
         <item>-----------</item>
         <item>Socinho</item>
@@ -24,4 +26,5 @@
         <item>Moderado</item>
         <item>Luxo</item>
     </string-array>
+    <string name="close_button_description">Fechar mapa</string>
 </resources>

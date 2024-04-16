@@ -74,7 +74,7 @@
                                 android:layout_height="wrap_content"
                                 android:hint="Palavra-passe"
                                 android:padding="15dp"
-                                android:password="false" />
+                                android:password="true" />
 
                         </com.google.android.material.textfield.TextInputLayout>
 

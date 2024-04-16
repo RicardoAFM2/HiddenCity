@@ -24,5 +24,4 @@ interface UtilizadorDao {
     @Query("SELECT * FROM Utilizador WHERE Nome = :Nome OR Email = :Email AND Senha = :Senha")
     suspend fun login (Nome: String, Email: String, Senha: String): Utilizador?
 
-
 }
