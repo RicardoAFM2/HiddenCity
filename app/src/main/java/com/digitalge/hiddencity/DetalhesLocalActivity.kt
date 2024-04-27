@@ -1,19 +1,22 @@
 package com.digitalge.hiddencity
 
 import android.Manifest
-import android.content.Intent
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
+import android.view.View
+import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.google.android.gms.common.api.ApiException
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.digitalge.hiddencity.Base_de_Dados.Comentarios
+import com.digitalge.hiddencity.Base_de_Dados.Favoritos
+import com.digitalge.hiddencity.databinding.ActivityDetalhesLocalBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -24,7 +27,10 @@ import com.google.android.libraries.places.api.net.FetchPhotoRequest
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.maps.android.SphericalUtil
-import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -38,11 +44,14 @@ class DetalhesLocalActivity : AppCompatActivity() {
     private val REQUEST_LOCATION_PERMISSION = 1
     private var photoMetadataList: List<PhotoMetadata> = emptyList()
     private var currentPhotoIndex = 0
-
+    private lateinit var binding: ActivityDetalhesLocalBinding
+    private var userRating: Float = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_detalhes_local)
+        binding = ActivityDetalhesLocalBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
 
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
@@ -50,174 +59,317 @@ class DetalhesLocalActivity : AppCompatActivity() {
         placesClient = Places.createClient(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        placeID = intent.getStringExtra("place_id")
-        if (placeID == null) {
-            Log.e("DetalhesLocalActivity", "No place ID found in intent extras")
+        val placeID = intent.getStringExtra("place_id")
+
+        fetchPlaceDetails(placeID)
+        clicarimagem()
+        setupFavoriteButton()
+        toggleDescriptionVisibility()
+        setupRatingBar()
+    }
+
+    private fun toggleDescriptionVisibility() {
+        binding.localCommentsTextView.setOnClickListener {
+            binding.ratingBar.visibility = View.VISIBLE
+            binding.commentInput.visibility = View.VISIBLE
+            binding.Botoes.visibility = View.VISIBLE
+
+            placeID?.let { nonNullPlaceId ->
+                showCommentsForPlace(nonNullPlaceId)
+            } ?: Toast.makeText(this, "ID do local não está disponível.", Toast.LENGTH_SHORT).show()
+
+            // Esconde a descrição para evitar sobreposição de conteúdo
+            binding.localDescriptionTextView.visibility = View.GONE
+        }
+
+        binding.textView.setOnClickListener {
+            // Mostrar a descrição e esconder ratingBar e commentInput
+            binding.localDescriptionTextView.visibility = View.VISIBLE
+            binding.ratingBar.visibility = View.GONE
+            binding.Botoes.visibility = View.GONE
+            binding.commentInput.visibility = View.GONE
+        }
+
+        binding.submitButton.setOnClickListener { GuardarComentario() }
+    }
+
+    private fun showCommentsForPlace(placeId: String) {
+        val comentariosDao = AppDatabase.getDatabase(applicationContext).ComentariosDao()
+        lifecycleScope.launch {
+            val comentarios = comentariosDao.buscarComentariosPorPlaceId(placeId)
+            withContext(Dispatchers.Main) {
+                displayComments(comentarios)
+            }
+        }
+    }
+
+    private fun displayComments(comentarios: List<Comentarios>) {
+        binding.commentsContainer.removeAllViews()
+
+        comentarios.forEach { comentario ->
+            val commentView = TextView(this).apply {
+                text = "${comentario.Nome}: ${comentario.Descricao} - Avaliação: ${comentario.Avalicao}"
+                // Defina outros estilos como necessário aqui
+            }
+            binding.commentsContainer.addView(commentView)
+        }
+    }
+
+    private fun setupRatingBar() {
+        binding.ratingBar.onRatingBarChangeListener = RatingBar.OnRatingBarChangeListener { _, rating, fromUser ->
+            if (fromUser) {
+                userRating = rating // Atualiza a variável de classe com a nova avaliação
+            }
+        }
+    }
+
+    private fun GuardarComentario() {
+        val Nome = getLoggedInUserName()
+        val descricaoComentario = binding.commentInput.text.toString()
+        val avaliacao = userRating.toDouble()
+        val idUtilizador = getUserId()
+
+        val placeIdValuecom = intent.getStringExtra("place_id")
+        if (placeIdValuecom == null) {
+            Toast.makeText(
+                applicationContext,
+                "Erro: ID do local não está disponível.",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+
+        val novoComentario = Comentarios(
+            PlaceID = placeIdValuecom,
+            Nome = Nome,
+            Descricao = descricaoComentario,
+            Avalicao = avaliacao,
+            IdUtilizador = idUtilizador
+        )
+        val comentariosDao = AppDatabase.getDatabase(applicationContext).ComentariosDao()
+        lifecycleScope.launch {
+            val resultadoInsercao = comentariosDao.inserirComentario(novoComentario)
+            withContext(Dispatchers.Main) {
+                if (resultadoInsercao > 0) {
+                    // Comentário salvo com sucesso, agora limpe a RatingBar e o campo de texto.
+                    binding.ratingBar.rating = 0f // Reseta a RatingBar
+                    binding.commentInput.text.clear() // Limpa o campo de comentário
+                    Toast.makeText(
+                        applicationContext,
+                        "Comentário salvo com sucesso.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    // Houve um erro ao salvar o comentário.
+                    Toast.makeText(
+                        applicationContext,
+                        "Erro ao salvar o comentário.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    private fun clicarimagem(){
+        binding.backButton.setOnClickListener { onBackPressed() }
+
+    }
+
+    fun getLoggedInUserName(): String {
+        val sharedPref = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        return sharedPref.getString("UteNome", "Utilizador Desconhecido") ?: "Utilizador Desconhecido"
+    }
+
+    private fun getDatabase(): AppDatabase {
+        return Room.databaseBuilder(applicationContext, AppDatabase::class.java, "hiddencity.db").build()
+    }
+
+    private fun getUserId(): Int {
+        return getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).getInt("UteID", -1)
+    }
+
+    private fun setupFavoriteButton(){
+        val idUtilizador = getUserId()
+        binding.favoriteButton.setOnClickListener {
+            it.isSelected = !it.isSelected
+            val placeIdValue = intent.getStringExtra("place_id")
+            if (placeIdValue == null) {
+                Toast.makeText(applicationContext, "Erro: ID do local não está disponível.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+
+            lifecycleScope.launch {
+                val favoritos = Favoritos(
+                    Nome = binding.localNameTextView.text.toString(),
+                    PlaceID = placeIdValue,
+                    URL = binding.localImageView.tag.toString(),
+                    IdUtilizador = idUtilizador
+                )
+                try {
+                    getDatabase().FavoritosDao().inserirFavoritos(favoritos)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(applicationContext, "Local adicionado aos favoritos!", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(applicationContext, "Erro ao adicionar aos favoritos: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun fetchPlaceDetails(placeId: String?){
+        if (placeId == null) {
+            Toast.makeText(this, "ID do local não foi fornecido.", Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
-        setupNavigationButtons()
         checkLocationPermissionAndFetch()
-    }
 
-    private fun setupNavigationButtons() {
-        findViewById<Button>(R.id.image_next_button).setOnClickListener {
-            showNextPhoto()
-        }
-        findViewById<Button>(R.id.image_prev_button).setOnClickListener {
-            showPreviousPhoto()
-        }
-    }
+        val placeFields = listOf(
+            Place.Field.ID, Place.Field.NAME, Place.Field.PHOTO_METADATAS,
+            Place.Field.LAT_LNG, Place.Field.RATING
+        )
 
-    private fun showNextPhoto() {
-        if (photoMetadataList.isNotEmpty()) {
-            currentPhotoIndex = (currentPhotoIndex + 1) % photoMetadataList.size
-            loadPhoto(photoMetadataList[currentPhotoIndex])
+        val request = FetchPlaceRequest.newInstance(placeId, placeFields)
+
+        placesClient.fetchPlace(request).addOnSuccessListener { response ->
+            val place = response.place
+            updateUIWithPlaceDetails(place)
+        }.addOnFailureListener { exception ->
+            Log.e("API Error", "Erro ao buscar detalhes do local: ${exception.message}")
         }
     }
 
-    private fun showPreviousPhoto() {
-        if (photoMetadataList.isNotEmpty()) {
-            currentPhotoIndex = if (currentPhotoIndex > 0) currentPhotoIndex - 1 else photoMetadataList.size - 1
-            loadPhoto(photoMetadataList[currentPhotoIndex])
-        }
-    }
 
-    private fun loadPhoto(photoMetadata: PhotoMetadata) {
-        val photoRequest = FetchPhotoRequest.builder(photoMetadata)
-            .setMaxWidth(resources.getDimensionPixelSize(R.dimen.default_image_width))
-            .setMaxHeight(resources.getDimensionPixelSize(R.dimen.default_image_height))
-            .build()
-        placesClient.fetchPhoto(photoRequest).addOnSuccessListener { fetchPhotoResponse ->
-            findViewById<ImageView>(R.id.local_image_view).setImageBitmap(fetchPhotoResponse.bitmap)
-        }.addOnFailureListener { e ->
-            Log.e("API Error", "Error fetching photo: ${e.message}")
-        }
-    }
+    private fun updateUIWithPlaceDetails(place: Place) {
+        binding.localNameTextView.text = place.name
 
-    private fun checkLocationPermissionAndFetch() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fetchCurrentLocation()
-        } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION)
+        // Buscar a localização atual do usuário e calcular a distância
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
         }
-    }
-    private fun fetchCurrentLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION)
-        } else {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                location?.let { updateDistanceAndDescription(it) }
-            }.addOnFailureListener { e ->
-                Log.e("Location Error", "Error getting location: ${e.message}")
-            }
-        }
-    }
-
-    private fun updateUIWithPlaceDetails(place: Place, currentLocation: Location) {
-        findViewById<TextView>(R.id.local_name_text_view).text = place.name
-        place.latLng?.let { latLng ->
-            val distance = SphericalUtil.computeDistanceBetween(
-                LatLng(currentLocation.latitude, currentLocation.longitude), latLng)
-            findViewById<TextView>(R.id.local_distance_text_view).apply {
-                text = "${(distance / 1000).toInt()} Km da sua localização"
-                setOnClickListener {
-                    val intent = Intent(this@DetalhesLocalActivity, mapa_caminho::class.java).apply {
-                        putExtra("destination_lat", latLng.latitude)
-                        putExtra("destination_lng", latLng.longitude)
-                        putExtra("current_lat", currentLocation.latitude)
-                        putExtra("current_lng", currentLocation.longitude)
-                        putExtra("place_name", place.name)
-                    }
-                    startActivity(intent)
-                }
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            location?.let { currentLocation ->
+                val distanceInMeters = SphericalUtil.computeDistanceBetween(
+                    LatLng(currentLocation.latitude, currentLocation.longitude),
+                    place.latLng
+                )
+                val distanceInKm = distanceInMeters / 1000.0
+                binding.localDistanceTextView.text = getString(R.string.distance_text, distanceInKm)
             }
         }
 
-        // Exibir a classificação numérica
-        place.rating?.let {
-            findViewById<TextView>(R.id.local_rating_text_view).text = "${it}"
+        // Exibir a classificação
+        place.rating?.let { rating ->
+            binding.localRatingTextView.text = getString(R.string.rating_text, rating)
         }
 
-        // Exibir os tipos de lugar
-        place.types?.let { types ->
-            findViewById<TextView>(R.id.local_description_text_view).text = types.joinToString(separator = ", ") {
-                it.name.replace("_", " ").toLowerCase(Locale.ROOT).capitalize(Locale.ROOT)
-            }
-        }
+        // Carregar a foto do local
+        loadPhoto(place.photoMetadatas)
 
-        // Carregar e exibir fotos
-        photoMetadataList = place.photoMetadatas ?: emptyList()
-        if (photoMetadataList.isNotEmpty()) loadPhoto(photoMetadataList.first())
-
-        // Mostrar a historia de uma local
+        // Buscar e exibir a descrição da Wikipedia
         place.name?.let { name ->
-            fetchSummaryFromWikipedia(name) { summary ->
-                runOnUiThread {
-                    findViewById<TextView>(R.id.local_description_text_view).text = summary
-                }
-            }
+            fetchSummaryFromWikipedia(name)
         }
     }
 
-    private fun updateDistanceAndDescription(currentLocation: Location) {
-        placeID?.let { pid ->
-            val placeFields = listOf(
-                Place.Field.ID,
-                Place.Field.NAME,
-                Place.Field.PHOTO_METADATAS,
-                Place.Field.LAT_LNG,
-                Place.Field.ADDRESS,
-                Place.Field.TYPES,
-                Place.Field.RATING
-            )
-            val request = FetchPlaceRequest.newInstance(pid, placeFields)
-            placesClient.fetchPlace(request).addOnSuccessListener { response ->
-                val place = response.place
-                runOnUiThread {
-                    updateUIWithPlaceDetails(place, currentLocation)
-                }
+    private fun loadPhoto(photoMetadata: List<PhotoMetadata>?) {
+        photoMetadata?.firstOrNull()?.let {
+            val photoRequest = FetchPhotoRequest.builder(it)
+                .setMaxWidth(resources.getDimensionPixelSize(R.dimen.default_image_width))
+                .setMaxHeight(resources.getDimensionPixelSize(R.dimen.default_image_height))
+                .build()
+
+            placesClient.fetchPhoto(photoRequest).addOnSuccessListener { fetchPhotoResponse ->
+                val bitmap = fetchPhotoResponse.bitmap
+                binding.localImageView.setImageBitmap(bitmap)
             }.addOnFailureListener { exception ->
-                if (exception is ApiException) {
-                    Log.e("API Error", "Error fetching place details: ${exception.statusCode}")
-                } else {
-                    Log.e("API Error", "An unexpected error occurred: ${exception.message}")
-                }
+                // Handle the error
+                Log.e("DetalhesLocalActivity", "Photo not found: ${exception.message}")
             }
         }
     }
 
-
-    fun fetchSummaryFromWikipedia(placeName: String, callback: (String) -> Unit) {
-        val formattedName = placeName.replace(" ", "_") // Formatar o nome para URL
+    private fun fetchSummaryFromWikipedia(placeName: String) {
+        val formattedName = placeName.replace(" ", "_")
         val url = "https://pt.wikipedia.org/api/rest_v1/page/summary/$formattedName"
 
         val request = Request.Builder().url(url).build()
-
         OkHttpClient().newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
-                callback("Falha ao buscar dados: ${e.message}")
+                // Handle the error
+                e.printStackTrace()
             }
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 response.body?.string()?.let {
                     val jsonObject = JSONObject(it)
-                    val extract = jsonObject.optString("extract", "Resumo não disponível.")
-                    callback(extract)
-                } ?: callback("Resumo não disponível.")
+                    val extract = jsonObject.optString("extract", "Summary not available.")
+                    runOnUiThread {
+                        binding.localDescriptionTextView.text = extract
+                    }
+                } ?: runOnUiThread {
+                    binding.localDescriptionTextView.text = "Summary not available."
+                }
             }
         })
     }
 
+    private fun checkLocationPermissionAndFetch() {
+        // Implementação para verificar permissão e buscar localização
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION)
+            return
+        }
+        fetchCurrentLocation()
+    }
 
+    private fun fetchCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return  // Retorna se ainda não houver permissão; isso é apenas uma precaução.
+        }
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                updateUIWithLocation(location)
+            } else {
+                Toast.makeText(this, "Unable to get current location.", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to get location: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateUIWithLocation(location: Location) {
+        Toast.makeText(this, "Location: ${location.latitude}, ${location.longitude}", Toast.LENGTH_LONG).show()
+    }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_LOCATION_PERMISSION && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            fetchCurrentLocation()
-        } else {
-            Toast.makeText(this, "Permissão de localização necessária", Toast.LENGTH_LONG).show()
+        when (requestCode) {
+            REQUEST_LOCATION_PERMISSION -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permissão concedida.
+                    fetchCurrentLocation()
+                } else {
+                    // Permissão negada.
+                    Toast.makeText(this, "Permission denied.", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
+
 }

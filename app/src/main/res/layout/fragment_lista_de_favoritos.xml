@@ -9,13 +9,26 @@
         android:id="@+id/search_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Pesquisar monumento..."
+        android:hint="Pesquisar..."
         android:inputType="text"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/results_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/search_edit_text"
+        android:layout_above="@+id/trash_icon"
         android:layout_marginTop="8dp" />
+
+    <ImageView
+        android:id="@+id/trash_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_lixo"
+        android:layout_gravity="bottom|center"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"/>
+
 
 </LinearLayout>

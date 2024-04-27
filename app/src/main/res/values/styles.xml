@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomRatingBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorControlNormal">@color/gray</item> <!-- cor quando não selecionado -->
+        <item name="colorControlActivated">@color/yellow</item> <!-- cor quando selecionado -->
+    </style>
+</resources>

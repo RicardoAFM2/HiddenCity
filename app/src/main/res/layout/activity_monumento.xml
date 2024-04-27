@@ -1,15 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPagerImages"
+    <ImageView
+        android:id="@+id/voltar"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/icon_voltar" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="20dp"
+        android:text="Monumentos"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/voltar"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/search_edit_text"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:hint="Pesquisar..."
+        android:inputType="text"
+        app:layout_constraintTop_toBottomOf="@+id/textView9"
+        tools:ignore="MissingConstraints" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/results_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_edit_text"
+        app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="-16dp" />
 
     <GridLayout
         android:layout_width="match_parent"
@@ -18,11 +52,13 @@
         android:columnCount="2"
         android:rowCount="4"
         android:alignmentMode="alignMargins"
-        android:columnOrderPreserved="false">
+        android:columnOrderPreserved="false"
+        app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
+        tools:ignore="MissingConstraints">
 
         <!-- Bloco de Monumentos -->
         <LinearLayout
-            android:id="@+id/Monumentos"
+            android:id="@+id/Monumento_1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
@@ -36,13 +72,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Monumentos"
+                android:text="nome"
                 android:gravity="center"/>
         </LinearLayout>
 
         <!-- Bloco de Museus -->
         <LinearLayout
-            android:id="@+id/Museus"
+            android:id="@+id/Monumento_2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
@@ -56,13 +92,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Museus"
+                android:text="Nome"
                 android:gravity="center"/>
         </LinearLayout>
 
         <!-- Bloco de Restaurantes -->
         <LinearLayout
-            android:id="@+id/Restaurantes"
+            android:id="@+id/Monumento_3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
@@ -76,13 +112,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Restaurantes"
+                android:text="Nome"
                 android:gravity="center"/>
         </LinearLayout>
 
         <!-- Bloco de Hotéis -->
         <LinearLayout
-            android:id="@+id/Hotéis"
+            android:id="@+id/Monumento_4"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_columnWeight="1"
@@ -96,8 +132,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hotéis"
+                android:text="Nome"
                 android:gravity="center"/>
         </LinearLayout>
     </GridLayout>
-</LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

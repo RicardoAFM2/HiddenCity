@@ -20,4 +20,7 @@ interface ComentariosDao {
 
     @Delete
     suspend fun Eliminar(comentario: Comentarios)
+
+    @Query("SELECT * FROM Comentarios WHERE PlaceID = :placeId")
+    suspend fun buscarComentariosPorPlaceId(placeId: String): List<Comentarios>
 }

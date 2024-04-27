@@ -16,6 +16,8 @@ import org.w3c.dom.Text
     ])
 data class Comentarios (
     @PrimaryKey(autoGenerate = true) val IdComentarios: Int = 0,
+    @ColumnInfo(name = "PlaceID") val PlaceID: String,
+    @ColumnInfo(name = "Nome") val Nome: String,
     @ColumnInfo(name = "Descricao") val Descricao: String,
     @ColumnInfo(name = "Avalicao") val Avalicao: Double,
     @ColumnInfo(name = "IdUtilizador") val IdUtilizador: Int

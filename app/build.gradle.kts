@@ -15,6 +15,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+        multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -63,9 +64,20 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.9.0")
 
     implementation ("androidx.fragment:fragment:1.6.2")
+    implementation("androidx.preference:preference:1.2.1")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+
+
+    implementation ("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+
+    implementation ("androidx.viewpager2:viewpager2:1.0.0")
+
 
     ksp("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.activity:activity-ktx:1.9.0")
     implementation ("androidx.room:room-ktx:2.6.1")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

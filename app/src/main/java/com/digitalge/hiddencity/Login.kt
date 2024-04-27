@@ -16,12 +16,15 @@ import kotlinx.coroutines.withContext
 class Login : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
+    private lateinit var database: AppDatabase
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        database = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "hiddencity.db").build()
 
         binding.Login.setOnClickListener {
             val nome = binding.Nome.text.toString()
@@ -43,16 +46,14 @@ class Login : AppCompatActivity() {
 
 
     fun VerrificarLogin(nome: String, email: String, senha: String){
-        val bd = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "hiddencity.db").build()
-        val UtilizadorDao = bd.UtilizadorDao()
-
         CoroutineScope(Dispatchers.IO).launch {
-            val Utilizador = UtilizadorDao.login(nome,email,senha)
+            val Utilizador = database.UtilizadorDao().login(nome,email,senha)
             withContext(Dispatchers.Main){
                 if (Utilizador != null){
                     val sharedPref = getSharedPreferences("AppPrefs", MODE_PRIVATE)
                     with(sharedPref.edit()) {
                         putInt("UteID", Utilizador.IdUtilizador)
+                        putString("UteNome", Utilizador.Nome)
                         apply()
                     }
                     val intent = Intent(

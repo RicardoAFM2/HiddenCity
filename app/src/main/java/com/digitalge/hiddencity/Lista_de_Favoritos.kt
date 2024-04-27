@@ -1,76 +1,93 @@
 package com.digitalge.hiddencity
 
 
-import android.content.Intent
+
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.common.api.ApiException
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.google.android.libraries.places.api.model.TypeFilter
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
-import com.google.android.libraries.places.api.net.PlacesClient
+import androidx.room.Room
+import com.digitalge.hiddencity.Adapter.FavoritesAdapter
+import com.digitalge.hiddencity.Base_de_Dados.Favoritos
+import com.digitalge.hiddencity.Dao.FavoritosDao
+import com.digitalge.hiddencity.databinding.FragmentListaDeFavoritosBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-data class PlaceInfo(val name: String, val id: String)
 
-class Lista_de_Favoritos: Fragment(R.layout.fragment_lista_de_favoritos) {
-    private lateinit var placesClient: PlacesClient
-    private lateinit var adapter: PlacesAdapter
-    private lateinit var recyclerView: RecyclerView
+class Lista_de_Favoritos : Fragment(R.layout.fragment_lista_de_favoritos) {
+    private lateinit var binding: FragmentListaDeFavoritosBinding
+    private lateinit var adapter: FavoritesAdapter
+    private lateinit var favoritosDao: FavoritosDao
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding = FragmentListaDeFavoritosBinding.bind(view)
 
-        if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
+        // Inicializando o banco de dados e o DAO
+        val database = Room.databaseBuilder(
+            requireContext(),
+            AppDatabase::class.java, "hiddencity.db"
+        ).build()
+        favoritosDao = database.FavoritosDao()  // Inicializando favoritosDao
+
+        adapter = FavoritesAdapter(
+            mutableListOf(),
+            requireContext(),
+            onDeleteClick = { favorito -> handleDelete(favorito) },
+            onLongItemClick = { isEditing, position ->
+                binding.trashIcon.visibility = if (isEditing) View.VISIBLE else View.GONE })
+
+        binding.resultsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = this@Lista_de_Favoritos.adapter
         }
-        placesClient = Places.createClient(requireContext())
 
-        val searchEditText = view.findViewById<EditText>(R.id.search_edit_text)
-        recyclerView = view.findViewById(R.id.results_recycler_view)
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        adapter = PlacesAdapter(emptyList(), this::handlePlaceSelection)
-        recyclerView.adapter = adapter
-
-        searchEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                searchPlaces(s.toString())
-            }
-        })
-    }
-
-    private fun handlePlaceSelection(placeInfo: PlaceInfo) {
-        val intent = Intent(context, DetalhesLocalActivity::class.java)
-        Log.d("PlaceID Check", "Sending placeID: ${placeInfo.id}")
-        intent.putExtra("place_id", placeInfo.id)
-        startActivity(intent)
-    }
-
-    private fun searchPlaces(query: String) {
-        val token = AutocompleteSessionToken.newInstance()
-        val request = FindAutocompletePredictionsRequest.builder()
-            .setTypeFilter(TypeFilter.ESTABLISHMENT)
-            .setSessionToken(token)
-            .setQuery(query)
-            .build()
-
-        placesClient.findAutocompletePredictions(request).addOnSuccessListener { response ->
-            val results = response.autocompletePredictions.map {
-                PlaceInfo(it.getPrimaryText(null).toString(), it.placeId)
-            }
-            adapter.updateData(results)
-        }.addOnFailureListener { exception ->
-            if (exception is ApiException) {
-                Log.e("API Error", "Error fetching autocomplete predictions: ${exception.statusCode}")
+        binding.trashIcon.setOnClickListener {
+            Log.d("DeleteIcon", "Clique no ícone de lixo")
+            if (adapter.isEditing && adapter.editingPosition != -1) {
+                val itemToRemove = adapter.favorites[adapter.editingPosition!!]
+                handleDelete(itemToRemove)
+                adapter.isEditing = false
+                adapter.editingPosition = -1
+                binding.trashIcon.visibility = View.GONE
             }
         }
+
+        loadData()  // Carrega os dados inicialmente
+    }
+
+    private fun handleDelete(favorito: Favoritos) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            favoritosDao.Eliminar(favorito)  // Operação de longa duração fora da UI thread
+            withContext(Dispatchers.Main) {  // Troca para a UI thread para atualizar a UI
+                adapter.favorites.remove(favorito)
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+    private fun handleLongClick(isEditing: Boolean, position: Int) {
+        binding.trashIcon.visibility = if (isEditing) View.VISIBLE else View.GONE
+    }
+
+    private fun loadData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val favorites = favoritosDao.buscarTodosFavoritos()  // Operação de longa duração fora da UI thread
+            withContext(Dispatchers.Main) {  // Troca para a UI thread para atualizar a UI
+                adapter.favorites.addAll(favorites)
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 }
+

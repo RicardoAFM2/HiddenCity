@@ -20,4 +20,6 @@ interface FavoritosDao {
 
     @Delete
     suspend fun Eliminar(Favoritos: Favoritos)
+    @Query("SELECT EXISTS(SELECT * FROM Utilizador WHERE IdUtilizador = :idUtilizador)")
+    suspend fun isUserExists(idUtilizador: Int): Boolean
 }

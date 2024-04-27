@@ -3,10 +3,9 @@ package com.digitalge.hiddencity.Base_de_Dados
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import org.w3c.dom.Text
 
 @Entity(tableName = "Locais")
-data class Locais (
+data class Locais(
     @PrimaryKey(autoGenerate = true) val IdLocais: Int = 0,
     @ColumnInfo(name = "Nome") val Nome: String,
     @ColumnInfo(name = "Descricao") val Descricao: String,

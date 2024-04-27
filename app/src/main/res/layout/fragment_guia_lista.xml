@@ -14,7 +14,7 @@
         android:inputType="text"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewGuia"
+        android:id="@+id/recyclerViewGuias"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/search_edit_text"
@@ -32,16 +32,10 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="O teus" />
 
-        <TextView
-            android:id="@+id/local_comments_text_view"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Publicos" />
+            android:text="Criado por: Nome do Utilizador" />
+
+
     </LinearLayout>
 
     <ImageView
@@ -53,8 +47,8 @@
         android:layout_margin="16dp"
         app:srcCompat="@drawable/icon_mais" />
 
-    <ImageButton
-        android:id="@+id/trash_icon"
+    <ImageView
+        android:id="@+id/trashIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/icon_lixo"
@@ -63,4 +57,3 @@
         android:layout_centerHorizontal="true"
         android:visibility="gone"/>
 </RelativeLayout>
-

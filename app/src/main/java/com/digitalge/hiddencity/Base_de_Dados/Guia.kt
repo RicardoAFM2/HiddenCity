@@ -17,6 +17,9 @@ import org.w3c.dom.Text
 data class Guia(
     @PrimaryKey(autoGenerate = true) val IdGuia: Int = 0,
     @ColumnInfo(name = "Nome") val Nome: String,
-    @ColumnInfo(name = "Num_PI") val Num_PI: Int,
-    @ColumnInfo(name = "IdUtilizador") val IdUtilizador: Int
-    )
+    @ColumnInfo(name = "publico") val publico: Int,
+    @ColumnInfo(name = "IdUtilizador") val IdUtilizador: Int,
+    @ColumnInfo(name = "url") val url: String
+    ) {
+
+}

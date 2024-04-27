@@ -10,7 +10,6 @@ import com.digitalge.hiddencity.Base_de_Dados.FormularioBD
 import com.digitalge.hiddencity.databinding.ActivityFormolarioBinding
 import com.digitalge.hiddencity.Dao.FormularioBDDao
 import kotlinx.coroutines.launch
-import com.digitalge.hiddencity.Dao.UtilizadorDao
 
 class Formolario : AppCompatActivity() {
 

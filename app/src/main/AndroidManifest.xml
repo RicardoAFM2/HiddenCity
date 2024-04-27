@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -17,6 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HiddenCity"
         tools:targetApi="31">
+        <activity
+            android:name=".monumento"
+            android:exported="false" />
         <activity
             android:name=".mapa_caminho"
             android:exported="false" />

@@ -1,4 +1,4 @@
-package com.digitalge.hiddencity
+package com.digitalge.hiddencity.Adapter
 
 
 import android.view.LayoutInflater
@@ -6,9 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.digitalge.hiddencity.PlaceInfo
 
-
+data class PlaceInfo(val name: String, val id: String)
 class PlacesAdapter(
     private var items: List<PlaceInfo>,
     private val onClick: (PlaceInfo) -> Unit

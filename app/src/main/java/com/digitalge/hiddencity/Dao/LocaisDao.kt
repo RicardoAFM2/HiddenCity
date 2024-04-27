@@ -10,7 +10,7 @@ import com.digitalge.hiddencity.Base_de_Dados.Locais
 @Dao
 interface LocaisDao {
     @Insert
-    suspend fun inserir(Local: Locais): Long
+    suspend fun inserir(Local: Locais)
 
     @Update
     suspend fun atualizar(Local: Locais)

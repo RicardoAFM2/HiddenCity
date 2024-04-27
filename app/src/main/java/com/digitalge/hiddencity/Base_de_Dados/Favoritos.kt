@@ -17,5 +17,7 @@ import org.w3c.dom.Text
 data class Favoritos(
     @PrimaryKey(autoGenerate = true) val IdFavoritos: Int = 0,
     @ColumnInfo(name = "Nome") val Nome: String,
+    @ColumnInfo(name = "PlaceID") val PlaceID: String,
+    @ColumnInfo(name = "URl") val URL: String,
     @ColumnInfo(name = "IdUtilizador") val IdUtilizador: Int
 )

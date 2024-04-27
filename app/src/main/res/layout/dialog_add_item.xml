@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <EditText
+        android:id="@+id/Nome_do_Guia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nome do Guia"
+        android:inputType="text"/>
+
+    <Button
+        android:id="@+id/btnChooseImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Por uma imagem"/>
+
+    <Switch
+        android:id="@+id/switchPublicPrivate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Publico ou Privado"/>
+
+</LinearLayout>

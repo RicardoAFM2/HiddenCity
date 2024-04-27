@@ -21,6 +21,9 @@ interface UtilizadorDao {
     @Delete
     suspend fun Eliminar(Utilizador: Utilizador)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM Utilizador WHERE IdUtilizador = :id)")
+    fun Utilizadorexistente(id: Int): Boolean
+
     @Query("SELECT * FROM Utilizador WHERE Nome = :Nome OR Email = :Email AND Senha = :Senha")
     suspend fun login (Nome: String, Email: String, Senha: String): Utilizador?
 
