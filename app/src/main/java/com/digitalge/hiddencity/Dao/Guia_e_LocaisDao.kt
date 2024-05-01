@@ -20,4 +20,11 @@ interface Guia_e_LocaisDao {
 
     @Delete
     suspend fun Eliminar(Guia_e_Locais: Guia_e_Locais)
+
+    @Query("SELECT * FROM Guia_e_Locais WHERE IdGuia = :idGuia")
+    suspend fun buscarPorIdGuia(idGuia: Int): List<Guia_e_Locais>
+
+
+    @Query("SELECT * FROM Guia_e_Locais WHERE placeID = :placeID")
+    fun buscarPorPlaceID(placeID: String): List<Guia_e_Locais>
 }

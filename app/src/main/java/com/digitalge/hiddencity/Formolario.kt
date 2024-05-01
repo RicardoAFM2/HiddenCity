@@ -72,6 +72,7 @@ class Formolario : AppCompatActivity() {
         return getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).getInt("UteID", -1)
     }
 
+
     suspend fun verifyUserIdAndSaveFormData(idUtilizador: Int, formulario: FormularioBD) {
         val exists = checkUserExists(idUtilizador)
         if (exists) {

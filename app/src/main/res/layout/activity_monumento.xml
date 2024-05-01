@@ -45,96 +45,17 @@
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="-16dp" />
 
-    <GridLayout
-        android:layout_width="match_parent"
-        android:layout_marginTop="10dp"
+    <TextView
+        android:id="@+id/text_view_no_results"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:columnCount="2"
-        android:rowCount="4"
-        android:alignmentMode="alignMargins"
-        android:columnOrderPreserved="false"
+        android:text="@string/no_monuments_found"
+        android:visibility="visible"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
-        tools:ignore="MissingConstraints">
+        tools:ignore="MissingConstraints" />
 
-        <!-- Bloco de Monumentos -->
-        <LinearLayout
-            android:id="@+id/Monumento_1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:orientation="vertical"
-            android:padding="4dp">
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_launcher_background"
-                android:scaleType="fitXY"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="nome"
-                android:gravity="center"/>
-        </LinearLayout>
-
-        <!-- Bloco de Museus -->
-        <LinearLayout
-            android:id="@+id/Monumento_2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:orientation="vertical"
-            android:padding="4dp">
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_launcher_background"
-                android:scaleType="fitXY"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Nome"
-                android:gravity="center"/>
-        </LinearLayout>
-
-        <!-- Bloco de Restaurantes -->
-        <LinearLayout
-            android:id="@+id/Monumento_3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:orientation="vertical"
-            android:padding="4dp">
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_launcher_background"
-                android:scaleType="fitXY"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Nome"
-                android:gravity="center"/>
-        </LinearLayout>
-
-        <!-- Bloco de Hotéis -->
-        <LinearLayout
-            android:id="@+id/Monumento_4"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:orientation="vertical"
-            android:padding="4dp">
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_launcher_background"
-                android:scaleType="fitXY"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Nome"
-                android:gravity="center"/>
-        </LinearLayout>
-    </GridLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

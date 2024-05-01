@@ -46,12 +46,12 @@ android {
 
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-ktx:1.13.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.activity:activity:1.8.2")
+    implementation("androidx.activity:activity:1.9.0")
 
 
     implementation ("com.google.maps.android:android-maps-utils:2.2.0")
@@ -74,6 +74,11 @@ dependencies {
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
 
     implementation ("androidx.viewpager2:viewpager2:1.0.0")
+
+
+    implementation ("com.squareup.picasso:picasso:2.71828")
+
+    implementation ("com.google.android.libraries.places:places:3.4.0")
 
 
     ksp("androidx.room:room-compiler:2.6.1")

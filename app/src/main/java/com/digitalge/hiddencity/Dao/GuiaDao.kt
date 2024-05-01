@@ -20,4 +20,7 @@ interface GuiaDao {
 
     @Delete
     suspend fun Eliminar(Guia: Guia)
+
+    @Query("SELECT * FROM Guia WHERE IdUtilizador = :userId")
+    fun buscarGuiaPorUtilizadorId(userId: Int): List<Guia>
 }

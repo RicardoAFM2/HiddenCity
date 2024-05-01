@@ -45,4 +45,6 @@
     <string name="distance_text">Distância: %.2f Km da sua localização</string>
     <string name="rating_text">Classificação: %.1f</string>
 
+    <string name="no_monuments_found">Nenhum monumento encontrado nas proximidades.</string>
+
 </resources>

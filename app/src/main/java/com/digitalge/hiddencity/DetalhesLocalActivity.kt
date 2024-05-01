@@ -35,8 +35,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import java.io.IOException
-
-
 class DetalhesLocalActivity : AppCompatActivity() {
     private lateinit var placesClient: PlacesClient
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -200,12 +198,17 @@ class DetalhesLocalActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            val imageUrl = if (binding.localImageView.tag != null && binding.localImageView.tag.toString().isNotEmpty()) {
+                binding.localImageView.tag.toString()
+            } else {
+                "URL_da_imagem_padrao" // Substitua por uma URL de imagem padrão ou caminho de recurso
+            }
 
             lifecycleScope.launch {
                 val favoritos = Favoritos(
                     Nome = binding.localNameTextView.text.toString(),
                     PlaceID = placeIdValue,
-                    URL = binding.localImageView.tag.toString(),
+                    URL = imageUrl,
                     IdUtilizador = idUtilizador
                 )
                 try {

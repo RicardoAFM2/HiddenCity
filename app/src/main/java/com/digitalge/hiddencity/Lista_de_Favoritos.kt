@@ -2,6 +2,7 @@ package com.digitalge.hiddencity
 
 
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -13,6 +14,8 @@ import com.digitalge.hiddencity.Adapter.FavoritesAdapter
 import com.digitalge.hiddencity.Base_de_Dados.Favoritos
 import com.digitalge.hiddencity.Dao.FavoritosDao
 import com.digitalge.hiddencity.databinding.FragmentListaDeFavoritosBinding
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.net.PlacesClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,10 +25,17 @@ class Lista_de_Favoritos : Fragment(R.layout.fragment_lista_de_favoritos) {
     private lateinit var binding: FragmentListaDeFavoritosBinding
     private lateinit var adapter: FavoritesAdapter
     private lateinit var favoritosDao: FavoritosDao
+    private lateinit var placesClient: PlacesClient
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentListaDeFavoritosBinding.bind(view)
+
+        if (!Places.isInitialized()) {
+            Places.initialize(requireContext(), "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
+        }
+        placesClient = Places.createClient(requireContext())
+
 
         // Inicializando o banco de dados e o DAO
         val database = Room.databaseBuilder(
@@ -35,6 +45,7 @@ class Lista_de_Favoritos : Fragment(R.layout.fragment_lista_de_favoritos) {
         favoritosDao = database.FavoritosDao()  // Inicializando favoritosDao
 
         adapter = FavoritesAdapter(
+            placesClient,
             mutableListOf(),
             requireContext(),
             onDeleteClick = { favorito -> handleDelete(favorito) },
@@ -49,10 +60,9 @@ class Lista_de_Favoritos : Fragment(R.layout.fragment_lista_de_favoritos) {
         binding.trashIcon.setOnClickListener {
             Log.d("DeleteIcon", "Clique no ícone de lixo")
             if (adapter.isEditing && adapter.editingPosition != -1) {
-                val itemToRemove = adapter.favorites[adapter.editingPosition!!]
-                handleDelete(itemToRemove)
+                adapter.removeItemAtPosition(adapter.editingPosition!!)
                 adapter.isEditing = false
-                adapter.editingPosition = -1
+                adapter.editingPosition = null
                 binding.trashIcon.visibility = View.GONE
             }
         }
@@ -61,29 +71,29 @@ class Lista_de_Favoritos : Fragment(R.layout.fragment_lista_de_favoritos) {
     }
 
     private fun handleDelete(favorito: Favoritos) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            favoritosDao.Eliminar(favorito)  // Operação de longa duração fora da UI thread
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {  // Operações de banco de dados em Dispatchers.IO
+            favoritosDao.Eliminar(favorito)
             withContext(Dispatchers.Main) {  // Troca para a UI thread para atualizar a UI
-                adapter.favorites.remove(favorito)
-                adapter.notifyDataSetChanged()
+                adapter.removeFavorite(favorito)
             }
         }
     }
 
-    private fun handleLongClick(isEditing: Boolean, position: Int) {
-        binding.trashIcon.visibility = if (isEditing) View.VISIBLE else View.GONE
-    }
+
 
     private fun loadData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            val favorites = favoritosDao.buscarTodosFavoritos()  // Operação de longa duração fora da UI thread
+        val userId = getUserId()  // Assegure-se de que este método não acessa o banco de dados diretamente
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {  // Usando Dispatchers.IO para operações de I/O
+            val favorites = favoritosDao.buscarFavoritosPorUtilizadorId(userId)  // Filtra por ID de usuário
             withContext(Dispatchers.Main) {  // Troca para a UI thread para atualizar a UI
-                adapter.favorites.addAll(favorites)
-                adapter.notifyDataSetChanged()
+                adapter.updateFavorites(favorites)
             }
         }
     }
 
+    private fun getUserId(): Int {
+        return requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).getInt("UteID", -1)
+    }
 
 
     override fun onDestroyView() {

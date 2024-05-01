@@ -1,9 +1,15 @@
 package com.digitalge.hiddencity
 
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
 import com.digitalge.hiddencity.databinding.ActivityDefinicoesBinding
+import kotlinx.coroutines.launch
 
 class Definicoes : AppCompatActivity() {
 
@@ -61,8 +67,7 @@ class Definicoes : AppCompatActivity() {
 
         //Quanto clica Elimna a conta
         binding.Eliminar.root.setOnClickListener {
-            val intent = Intent(this, Login::class.java)
-            startActivity(intent)
+            mostrarDialogoConfirmacao()
         }
 
 
@@ -73,4 +78,40 @@ class Definicoes : AppCompatActivity() {
         }
 
     }
+
+    private fun mostrarDialogoConfirmacao() {
+        AlertDialog.Builder(this)
+            .setTitle("Confirmar Exclusão")
+            .setMessage("Tem certeza de que deseja eliminar sua conta? Esta ação não pode ser desfeita.")
+            .setPositiveButton("Excluir") { dialog, which ->
+                excluirConta()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun excluirConta() {
+            val usuarioId = getUserId() // Suponha que você tenha um método que recupera o ID do usuário logado
+
+            lifecycleScope.launch {
+                try {
+                    getDatabase().UtilizadorDao().Eliminar(usuarioId)
+                    Toast.makeText(this@Definicoes, "Conta eliminada com sucesso!", Toast.LENGTH_SHORT).show()
+                    // Redirecionar para a tela de login ou qualquer outra tela inicial
+                    startActivity(Intent(this@Definicoes, Login::class.java))
+                    finish()
+                } catch (e: Exception) {
+                    Toast.makeText(this@Definicoes, "Erro ao eliminar conta: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+    fun getDatabase(): AppDatabase {
+        return Room.databaseBuilder(applicationContext, AppDatabase::class.java, "hiddencity.db").build()
+    }
+
+    private fun getUserId(): Int {
+        return getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).getInt("UteID", -1)
+    }
 }
+

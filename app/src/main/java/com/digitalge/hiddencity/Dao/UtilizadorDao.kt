@@ -18,11 +18,20 @@ interface UtilizadorDao {
     @Update
     suspend fun atualizar(Utilizador: Utilizador)
 
-    @Delete
-    suspend fun Eliminar(Utilizador: Utilizador)
 
-    @Query("SELECT EXISTS(SELECT 1 FROM Utilizador WHERE IdUtilizador = :id)")
-    fun Utilizadorexistente(id: Int): Boolean
+    @Query("DELETE FROM Utilizador WHERE IdUtilizador = :UtilizadorId")
+    suspend fun Eliminar(UtilizadorId: Int)
+
+    @Query("UPDATE utilizador SET Nome = :novoNome WHERE IdUtilizador = :UtilizadorId")
+    suspend fun atualizarNome(UtilizadorId: Int, novoNome: String)
+    @Query("UPDATE Utilizador SET senha = :novaSenha WHERE IdUtilizador = :UtilizadorId")
+    suspend fun atualizarPalavrapasse(UtilizadorId: Int, novaSenha: String)
+
+    @Query("UPDATE Utilizador SET numero = :novoNumero WHERE IdUtilizador = :UtilizadorId")
+    suspend fun atualizarNumero(UtilizadorId: Int, novoNumero: String)
+
+    @Query("UPDATE Utilizador SET Email = :novoEmail WHERE IdUtilizador = :UtilizadorId")
+    suspend fun atualizarEmail(UtilizadorId: Int, novoEmail: String)
 
     @Query("SELECT * FROM Utilizador WHERE Nome = :Nome OR Email = :Email AND Senha = :Senha")
     suspend fun login (Nome: String, Email: String, Senha: String): Utilizador?
