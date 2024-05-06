@@ -20,4 +20,6 @@ interface LocaisDao {
 
     @Query("SELECT * FROM Locais")
     suspend fun buscarTodosLocais(): List<Locais>
+    @Query("SELECT * FROM locais WHERE IdLocais = :id")
+    suspend fun buscarLocalPorId(id: Int): Locais
 }

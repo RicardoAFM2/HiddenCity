@@ -19,6 +19,7 @@ data class Guia(
     @ColumnInfo(name = "Nome") val Nome: String,
     @ColumnInfo(name = "publico") val publico: Int,
     @ColumnInfo(name = "IdUtilizador") val IdUtilizador: Int,
+    @ColumnInfo(name = "Nome_utilizador") val Nome_utilizador: String,
     @ColumnInfo(name = "url") val url: String
     ) {
 

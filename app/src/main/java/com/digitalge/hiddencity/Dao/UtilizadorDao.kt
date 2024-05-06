@@ -36,4 +36,10 @@ interface UtilizadorDao {
     @Query("SELECT * FROM Utilizador WHERE Nome = :Nome OR Email = :Email AND Senha = :Senha")
     suspend fun login (Nome: String, Email: String, Senha: String): Utilizador?
 
+    @Query("UPDATE Utilizador SET Imagem = :imageUrl WHERE IdUtilizador = :userId")
+    suspend fun atualizarImagemUrl(userId: Int, imageUrl: String)
+    @Query("SELECT * FROM Utilizador WHERE IdUtilizador = :userId")
+    suspend fun buscarPorId(userId: Int): Utilizador
+
+
 }

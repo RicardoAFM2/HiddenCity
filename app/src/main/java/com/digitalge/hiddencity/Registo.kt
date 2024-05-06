@@ -42,7 +42,7 @@ class Registo : AppCompatActivity() {
                 ).show()
             }else{
                 val senhaHash = hashSenha(senha)
-                val utilizador = Utilizador(Nome = nome, Email = email, Senha = senhaHash, Numero = numero)
+                val utilizador = Utilizador(Nome = nome, Email = email, Senha = senhaHash, Numero = numero, Imagem = "")
 
                 CoroutineScope(Dispatchers.IO).launch {
                     database.UtilizadorDao().inserirUtilizadores(utilizador)

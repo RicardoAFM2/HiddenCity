@@ -63,6 +63,18 @@
         app:layout_constraintTop_toBottomOf="@+id/Modificas_email" />
 
     <include
+        android:id="@+id/Modificas_imagem"
+        layout="@layout/item_definicoes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="335dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/Modificas_numero"/>
+
+    <include
         android:id="@+id/Modificas_email"
         layout="@layout/item_definicoes"
         android:layout_width="0dp"

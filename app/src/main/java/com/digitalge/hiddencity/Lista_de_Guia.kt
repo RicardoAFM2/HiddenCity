@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -93,6 +94,7 @@ class Lista_de_Guia: Fragment() {
                 val intent = Intent(context, Guia_cont::class.java)
                 intent.putExtra("NOME_DA_GUIA", guiaSelecionado.Nome)
                 intent.putExtra("NOME_DO_CRIADOR", guiaSelecionado.IdGuia)
+                intent.putExtra("HIDE_ADD_BUTTON", true)
                 startActivity(intent)
             }
         )
@@ -101,10 +103,13 @@ class Lista_de_Guia: Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = guiaAdapter
 
-
-
         val addButton = view.findViewById<View>(R.id.mais)
 
+
+        val publico: TextView = view.findViewById(R.id.local_comments_text_view)
+        publico.setOnClickListener {
+            replaceFragment(lista_guia_publica())
+        }
 
         setupRecyclerView()
         addButton.setOnClickListener { showAddItemDialog() }
@@ -116,10 +121,17 @@ class Lista_de_Guia: Fragment() {
     }
 
 
+    fun replaceFragment(fragment: Fragment) {
+        fragmentManager?.beginTransaction()
+            ?.replace(R.id.fragmentContainer, fragment)
+            ?.addToBackStack(null)  // Adiciona a transação à pilha de volta para navegação de retorno
+            ?.commit()
+    }
 
     private fun deleteGuia(guia: Guia) {
         CoroutineScope(Dispatchers.IO).launch {
             // Deleta o guia do banco de dados
+            AppDatabase.getDatabase(requireContext()).Guia_e_LocaisDao().eliminarPorIdGuia(guia.IdGuia)
             AppDatabase.getDatabase(requireContext()).GuiaDao().Eliminar(guia)
             withContext(Dispatchers.Main) {
                 // Encontra o índice do guia na lista antes de remover
@@ -134,7 +146,6 @@ class Lista_de_Guia: Fragment() {
             }
         }
     }
-
 
 
     private fun loadDataFromDatabase() {
@@ -232,7 +243,8 @@ class Lista_de_Guia: Fragment() {
     }
 
     private fun salvarGuia(nome: String, publico: Int, userId: Int, imageUrl: String) {
-        val novoGuia = Guia(Nome = nome, publico = publico, IdUtilizador = userId, url = imageUrl)
+        val nome_UT = getLoggedInUserName()
+        val novoGuia = Guia(Nome = nome, publico = publico, IdUtilizador = userId, Nome_utilizador = nome_UT, url = imageUrl)
         CoroutineScope(Dispatchers.IO).launch {
             val id = AppDatabase.getDatabase(requireContext()).GuiaDao().inserirGuia(novoGuia)
             withContext(Dispatchers.Main) {
@@ -242,6 +254,12 @@ class Lista_de_Guia: Fragment() {
             }
         }
     }
+
+    fun getLoggedInUserName(): String {
+        val sharedPref = requireContext().getSharedPreferences("AppPrefs", AppCompatActivity.MODE_PRIVATE)
+        return sharedPref.getString("UteNome", "Utilizador Desconhecido") ?: "Utilizador Desconhecido"
+    }
+
     private fun getUserId(): Int {
         return requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).getInt("UteID", -1)
     }

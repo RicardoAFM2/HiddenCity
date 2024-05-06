@@ -27,4 +27,7 @@ interface Guia_e_LocaisDao {
 
     @Query("SELECT * FROM Guia_e_Locais WHERE placeID = :placeID")
     fun buscarPorPlaceID(placeID: String): List<Guia_e_Locais>
+
+    @Query("DELETE FROM Guia_e_Locais WHERE IdGuia = :idGuia")
+    suspend fun eliminarPorIdGuia(idGuia: Int)
 }

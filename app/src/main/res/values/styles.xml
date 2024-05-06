@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="CustomRatingBar" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorControlNormal">@color/gray</item>
         <item name="colorControlActivated">@color/yellow</item>
+    </style>
+
+    <style name="Widget.Theme.HiddenCity.ButtonBar.Fullscreen" parent="">
+        <item name="android:background">@color/black_overlay</item>
+        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
 </resources>

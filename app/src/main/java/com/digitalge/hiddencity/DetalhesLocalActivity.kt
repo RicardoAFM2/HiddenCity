@@ -13,9 +13,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.digitalge.hiddencity.Adapter.CommentsAdapter
 import com.digitalge.hiddencity.Base_de_Dados.Comentarios
 import com.digitalge.hiddencity.Base_de_Dados.Favoritos
+import com.digitalge.hiddencity.Dao.ComentariosDao
 import com.digitalge.hiddencity.databinding.ActivityDetalhesLocalBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -44,6 +48,7 @@ class DetalhesLocalActivity : AppCompatActivity() {
     private var currentPhotoIndex = 0
     private lateinit var binding: ActivityDetalhesLocalBinding
     private var userRating: Float = 0f
+    private lateinit var adapter: CommentsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,23 +63,58 @@ class DetalhesLocalActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val placeID = intent.getStringExtra("place_id")
+        Log.d("DetalhesLocalActivity", "placeID recebido: $placeID")
 
         fetchPlaceDetails(placeID)
         clicarimagem()
         setupFavoriteButton()
         toggleDescriptionVisibility()
         setupRatingBar()
+        fetchComments()
+        setupRecyclerView()
     }
+
+
+    private fun setupRecyclerView() {
+        binding.commentsRecyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = CommentsAdapter(mutableListOf())
+        binding.commentsRecyclerView.adapter = adapter
+
+    }
+    private fun fetchComments() {
+        val placeId = intent.getStringExtra("place_id") ?: return Toast.makeText(this, "ID do local não disponível", Toast.LENGTH_SHORT).show()
+
+        lifecycleScope.launch {
+            val comentarios = withContext(Dispatchers.IO) {
+                AppDatabase.getDatabase(applicationContext).ComentariosDao().buscarComentariosPorPlaceId(placeId)
+            }
+            withContext(Dispatchers.Main) {
+                if (comentarios.isNotEmpty()) {
+                    adapter.updateData(comentarios)
+                } else {
+                    Toast.makeText(this@DetalhesLocalActivity, "Nenhum comentário disponível para este local.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
 
     private fun toggleDescriptionVisibility() {
         binding.localCommentsTextView.setOnClickListener {
+            // Torna o RecyclerView de comentários visível
+            binding.commentsRecyclerView.visibility = View.VISIBLE
             binding.ratingBar.visibility = View.VISIBLE
             binding.commentInput.visibility = View.VISIBLE
             binding.Botoes.visibility = View.VISIBLE
 
-            placeID?.let { nonNullPlaceId ->
-                showCommentsForPlace(nonNullPlaceId)
-            } ?: Toast.makeText(this, "ID do local não está disponível.", Toast.LENGTH_SHORT).show()
+            val placeId = intent.getStringExtra("place_id")
+            Log.d("DetalhesLocalActivity", "placeID recebido: $placeId")
+
+            if (placeId != null) {
+                fetchComments()
+            } else {
+                Toast.makeText(this, "ID do local não está disponível.", Toast.LENGTH_SHORT).show()
+            }
 
             // Esconde a descrição para evitar sobreposição de conteúdo
             binding.localDescriptionTextView.visibility = View.GONE
@@ -86,6 +126,7 @@ class DetalhesLocalActivity : AppCompatActivity() {
             binding.ratingBar.visibility = View.GONE
             binding.Botoes.visibility = View.GONE
             binding.commentInput.visibility = View.GONE
+            binding.commentsRecyclerView.visibility = View.GONE
         }
 
         binding.submitButton.setOnClickListener { GuardarComentario() }
@@ -102,14 +143,14 @@ class DetalhesLocalActivity : AppCompatActivity() {
     }
 
     private fun displayComments(comentarios: List<Comentarios>) {
-        binding.commentsContainer.removeAllViews()
+        binding.commentsRecyclerView.removeAllViews()
 
         comentarios.forEach { comentario ->
             val commentView = TextView(this).apply {
                 text = "${comentario.Nome}: ${comentario.Descricao} - Avaliação: ${comentario.Avalicao}"
                 // Defina outros estilos como necessário aqui
             }
-            binding.commentsContainer.addView(commentView)
+            binding.commentsRecyclerView.addView(commentView)
         }
     }
 
@@ -374,5 +415,6 @@ class DetalhesLocalActivity : AppCompatActivity() {
             }
         }
     }
+
 
 }

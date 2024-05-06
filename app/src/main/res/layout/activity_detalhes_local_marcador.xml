@@ -15,45 +15,47 @@
         android:src="@drawable/icon_voltar"
         android:contentDescription="@string/voltar_imagem_do_local_com_bot_es_de_navega_o_sobrepostos"/>
 
-    <ImageView
-        android:id="@+id/favorite_button"
+    <!-- Botão de favoritos e Switch para local visitado -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/back_button"
+        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="0dp"
-        android:clickable="true"
-        android:focusable="true"
         android:padding="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/icon_coracao_selecionar"
-        android:contentDescription="@string/adicionar_aos_favoritos" />
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/favorite_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/icon_coracao_selecionar"
+            android:contentDescription="@string/adicionar_aos_favoritos"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+
+        <Switch
+            android:id="@+id/switch_visited"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:visibility="visible"
+            android:text="Visitado" />
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/image_frame"
         android:layout_width="match_parent"
         android:layout_height="250dp"
         android:layout_below="@id/back_button">
-
-        <!-- Substitua com uma imagem padrão -->
-
         <ImageView
             android:id="@+id/local_image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_background" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_gravity="bottom"/>
     </FrameLayout>
 
-    <!-- Título e Rating do Local -->
     <LinearLayout
         android:id="@+id/info_container"
         android:layout_width="match_parent"
@@ -63,6 +65,14 @@
         android:padding="24dp"
         android:background="@android:color/white"
         android:elevation="6dp">
+
+        <TextView
+            android:id="@+id/creator_name_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nome do Criador:xxxxx"
+            android:textSize="16sp"
+            android:textColor="@android:color/black" />
 
         <!-- Nome do Local -->
         <TextView
@@ -174,6 +184,7 @@
             android:visibility="gone"
             android:layout_below="@id/local_comments_text_view"
             android:layout_marginTop="8dp"/>
+
 
     </LinearLayout>
 

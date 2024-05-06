@@ -21,6 +21,12 @@
         android:theme="@style/Theme.HiddenCity"
         tools:targetApi="31">
         <activity
+            android:name=".detalhes_local_marcador"
+            android:exported="false" />
+        <activity
+            android:name=".Guia_cont_publico"
+            android:exported="false" />
+        <activity
             android:name=".Guia_cont"
             android:exported="false" />
         <activity

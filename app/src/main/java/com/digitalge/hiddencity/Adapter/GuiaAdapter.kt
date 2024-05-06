@@ -1,5 +1,6 @@
 package com.digitalge.hiddencity.Adapter
 
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.digitalge.hiddencity.Base_de_Dados.Guia
+import com.digitalge.hiddencity.Guia_cont
 import com.digitalge.hiddencity.R
 
 class GuiaAdapter(
@@ -24,6 +26,8 @@ class GuiaAdapter(
 
         val imageViewIcon: ImageView = itemView.findViewById(R.id.image_place)
         val textViewNome: TextView = itemView.findViewById(R.id.text_place_name)
+
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GuiaViewHolder {
@@ -37,6 +41,8 @@ class GuiaAdapter(
     override fun onBindViewHolder(holder: GuiaViewHolder, position: Int) {
         val guia = guias[position]
         holder.textViewNome.text = guia.Nome
+
+
 
         val shakeAnimation = AnimationUtils.loadAnimation(holder.itemView.context, R.anim.shake).apply { repeatCount = Animation.INFINITE }
 
@@ -60,11 +66,14 @@ class GuiaAdapter(
             true
         }
 
+
+
         holder.itemView.setOnClickListener {
             if (!isAnimationRunning) {
                 onItemClicked(guia)
             }
         }
+
 
         Log.d("GuiaAdapter", "Loading image from URL: ${guia.url}")
 
@@ -80,5 +89,10 @@ class GuiaAdapter(
 
     fun clearItemAnimations(viewHolder: RecyclerView.ViewHolder?) {
         viewHolder?.itemView?.clearAnimation()
+    }
+
+    fun updateGuias(newGuias: List<Guia>) {
+        this.guias = newGuias
+        notifyDataSetChanged()
     }
 }

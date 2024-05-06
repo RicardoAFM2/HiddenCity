@@ -1,6 +1,7 @@
 package com.digitalge.hiddencity
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -87,6 +88,12 @@ class Guia_cont : AppCompatActivity() {
         layoutRoot.setOnClickListener {
             adapter.clearAnimations()
             trashIcon.visibility = View.GONE
+        }
+
+        val shouldHideAddButton = intent.getBooleanExtra("HIDE_ADD_BUTTON", false)
+        if (shouldHideAddButton) {
+            val addButton = findViewById<View>(R.id.mais)  // Certifique-se de ter o ID correto
+            addButton.visibility = View.GONE
         }
 
         setupRecyclerView()
@@ -221,8 +228,7 @@ class Guia_cont : AppCompatActivity() {
     private fun onPlaceItemLongClick(placeItem: PlaceItem) {
         // Lançar uma corrotina na thread principal, pois a visibilidade de uma view é uma operação de UI
         CoroutineScope(Dispatchers.Main).launch {
-            // Executar consulta ao banco de dados em uma thread de IO
-            val guiaELocais = withContext(Dispatchers.IO) {
+          val guiaELocais = withContext(Dispatchers.IO) {
                 val placeId = placeItem.placeId  // Aqui não precisa converter para Int, supondo que o placeID seja uma String
                 Log.d("Guia_cont", "Buscando no banco com placeID: $placeId")
                 AppDatabase.getDatabase(applicationContext).Guia_e_LocaisDao().buscarPorPlaceID(placeId).firstOrNull()
@@ -240,7 +246,9 @@ class Guia_cont : AppCompatActivity() {
     }
 
     private fun onPlaceItemClick(placeItem: PlaceItem) {
-        Toast.makeText(this, "Clicado: ${placeItem.name}", Toast.LENGTH_LONG).show()
+        val intent = Intent(this, DetalhesLocalActivity::class.java)
+        intent.putExtra("place_id", placeItem.placeId)
+        startActivity(intent)
         stopAllAnimationsAndHideTrashIcon()
     }
 

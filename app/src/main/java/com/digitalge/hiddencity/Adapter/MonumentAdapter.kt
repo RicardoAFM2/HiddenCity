@@ -20,13 +20,13 @@ class MonumentAdapter(
 
 
     class MonumentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val imageView: ImageView = view.findViewById(R.id.imageViewIcon)
-        val textViewNome: TextView = view.findViewById(R.id.textViewNome)
+        val imageView: ImageView = view.findViewById(R.id.image_place)
+        val textViewNome: TextView = view.findViewById(R.id.text_place_name)
 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MonumentViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_guia, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_place, parent, false)
         return MonumentViewHolder(view)
     }
 

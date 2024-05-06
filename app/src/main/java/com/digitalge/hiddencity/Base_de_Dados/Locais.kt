@@ -13,5 +13,7 @@ data class Locais(
     @ColumnInfo(name = "Longitude") val Longitude: Double,
     @ColumnInfo(name = "Avalicao") val Avalicao: Float,
     @ColumnInfo(name = "Imagens") val Imagens: String,
-    @ColumnInfo(name = "Tipo") val Tipo: String
+    @ColumnInfo(name = "Tipo") val Tipo: String,
+    @ColumnInfo(name = "nome_uti") val nome_uti: String,
+    @ColumnInfo(name = "privacidade") val privacidade: Int
 )

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextNome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nome do local"/>
+
+    <EditText
+        android:id="@+id/editTextDescricao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Descrição"/>
+
+    <EditText
+        android:id="@+id/editTextTipo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tipo de local"/>
+
+    <Switch
+        android:id="@+id/switchPrivacidade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Publico"
+        android:checked="false"
+        android:padding="8dp"
+        android:textSize="18sp"/>
+
+    <Button
+        android:id="@+id/buttonEscolherImagem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Escolher Imagem"/>
+
+</LinearLayout>

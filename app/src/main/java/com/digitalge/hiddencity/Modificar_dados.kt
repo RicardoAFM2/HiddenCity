@@ -1,7 +1,10 @@
 package com.digitalge.hiddencity
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.InputType
 import android.widget.EditText
 import android.widget.Toast
@@ -38,6 +41,8 @@ class Modificar_dados : AppCompatActivity() {
         //Mudar o texto para Modificar o numero
         binding.ModificasNumero.textViewItem.text = "Modificar o numero"
 
+        binding.ModificasImagem.textViewItem.text = "Modificar o Imagem"
+
 
         Clicarnaimagem()
     }
@@ -62,6 +67,20 @@ class Modificar_dados : AppCompatActivity() {
             mostrarDialogoEdicaoEmail()
         }
 
+        binding.ModificasImagem.textViewItem.setOnClickListener {
+            abrirGaleriaParaSelecionarImagem()
+        }
+
+    }
+
+    private fun abrirGaleriaParaSelecionarImagem() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "image/*"
+        startActivityForResult(intent, REQUEST_CODE_GALERIA)
+    }
+
+    companion object {
+        private const val REQUEST_CODE_GALERIA = 1001
     }
 
     private fun mostrarDialogoEdicaoEmail() {
@@ -82,13 +101,25 @@ class Modificar_dados : AppCompatActivity() {
                         try {
                             getDatabase().UtilizadorDao().atualizarEmail(ID, novoNome)
                             binding.ModificasNome.textViewItem.text = novoNome
-                            Toast.makeText(this@Modificar_dados, "Nome atualizado!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@Modificar_dados,
+                                "Nome atualizado!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } catch (e: Exception) {
-                            Toast.makeText(this@Modificar_dados, "Erro ao atualizar o nome: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@Modificar_dados,
+                                "Erro ao atualizar o nome: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 } else {
-                    Toast.makeText(this@Modificar_dados, "O nome não pode ser vazio.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@Modificar_dados,
+                        "O nome não pode ser vazio.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .setNegativeButton("Cancelar", null)
@@ -123,9 +154,17 @@ class Modificar_dados : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 getDatabase().UtilizadorDao().atualizarNumero(usuarioId, novoNumero)
-                Toast.makeText(this@Modificar_dados, "Número atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@Modificar_dados,
+                    "Número atualizado com sucesso!",
+                    Toast.LENGTH_SHORT
+                ).show()
             } catch (e: Exception) {
-                Toast.makeText(this@Modificar_dados, "Erro ao atualizar número: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@Modificar_dados,
+                    "Erro ao atualizar número: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -156,7 +195,7 @@ class Modificar_dados : AppCompatActivity() {
         val bytes = senha.toByteArray()
         val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(bytes)
-        return digest.fold("", {str, it -> str + "%02x".format(it)})
+        return digest.fold("", { str, it -> str + "%02x".format(it) })
     }
 
     private fun atualizarSenha(novaSenha: String) {
@@ -165,9 +204,17 @@ class Modificar_dados : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 getDatabase().UtilizadorDao().atualizarPalavrapasse(usuarioId, senhaCriptografada)
-                Toast.makeText(this@Modificar_dados, "Senha atualizada com sucesso!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@Modificar_dados,
+                    "Senha atualizada com sucesso!",
+                    Toast.LENGTH_SHORT
+                ).show()
             } catch (e: Exception) {
-                Toast.makeText(this@Modificar_dados, "Erro ao atualizar senha: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@Modificar_dados,
+                    "Erro ao atualizar senha: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -191,13 +238,25 @@ class Modificar_dados : AppCompatActivity() {
                         try {
                             getDatabase().UtilizadorDao().atualizarNome(ID, novoNome)
                             binding.ModificasNome.textViewItem.text = novoNome
-                            Toast.makeText(this@Modificar_dados, "Nome atualizado!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@Modificar_dados,
+                                "Nome atualizado!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } catch (e: Exception) {
-                            Toast.makeText(this@Modificar_dados, "Erro ao atualizar o nome: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@Modificar_dados,
+                                "Erro ao atualizar o nome: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 } else {
-                    Toast.makeText(this@Modificar_dados, "O nome não pode ser vazio.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@Modificar_dados,
+                        "O nome não pode ser vazio.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .setNegativeButton("Cancelar", null)
@@ -208,10 +267,46 @@ class Modificar_dados : AppCompatActivity() {
 
 
     fun getDatabase(): AppDatabase {
-        return Room.databaseBuilder(applicationContext, AppDatabase::class.java, "hiddencity.db").build()
+        return Room.databaseBuilder(applicationContext, AppDatabase::class.java, "hiddencity.db")
+            .build()
     }
 
     private fun getUserId(): Int {
         return getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).getInt("UteID", -1)
+    }
+
+    fun getPathFromUri(contentUri: Uri?): String? {
+        val proj = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = contentResolver.query(contentUri!!, proj, null, null, null)
+        val columnIndex = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        cursor?.moveToFirst()
+        val result = columnIndex?.let { cursor.getString(it) }
+        cursor?.close()
+        return result
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CODE_GALERIA && resultCode == RESULT_OK && data != null) {
+            val selectedImageUri = data.data  // URI da imagem selecionada
+            val imagePath = getPathFromUri(selectedImageUri)
+
+            imagePath?.let {
+                val userId = getUserId()  // Supõe que você tenha esse método para obter o ID do usuário
+                updateImageUrlInDatabase(userId, it)
+            }
+        }
+    }
+
+    private fun updateImageUrlInDatabase(userId: Int, imageUrl: String) {
+        lifecycleScope.launch {
+            try {
+                getDatabase().UtilizadorDao().atualizarImagemUrl(userId, imageUrl)
+                Toast.makeText(this@Modificar_dados, "Imagem atualizada com sucesso!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this@Modificar_dados, "Erro ao atualizar a imagem: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

@@ -29,7 +29,7 @@ class monumento : AppCompatActivity() {
 
     private lateinit var placesClient: PlacesClient
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private val radiusInMeters = 5000.0
+    private val radiusInMeters = 15000.0
 
     companion object {
         private const val REQUEST_LOCATION_PERMISSION = 1
