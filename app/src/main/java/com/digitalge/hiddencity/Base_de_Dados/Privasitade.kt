@@ -22,5 +22,6 @@ class Privasitade(
     @ColumnInfo(name = "Privar_os_favoritos") val Privar_os_favoritos: Int,
     @ColumnInfo(name = "privar_os_pontos_criados") val privar_os_pontos_criados: Int,
     @ColumnInfo(name = "privar_os_pontos_visitados") val privar_os_pontos_visitados: Int,
+    @ColumnInfo(name = "privar_os_guias_criados") val privar_os_guias_criados: Int,
     @ColumnInfo(name = "IdUtilizador") val IdUtilizador: Int
 )

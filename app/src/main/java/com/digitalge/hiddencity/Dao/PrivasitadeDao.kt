@@ -21,4 +21,8 @@ interface PrivasitadeDao {
 
     @Query("SELECT * FROM Privasitade")
     suspend fun buscarTodosPrivasitade(): List<Privasitade>
+
+    @Query("SELECT * FROM Privasitade WHERE IdUtilizador = :userId")
+    fun buscarPrivasitadePorUserId(userId: Int): Privasitade?
+
 }

@@ -46,6 +46,9 @@
     <string name="rating_text">Classificação: %.1f</string>
 
     <string name="no_monuments_found">Nenhum monumento encontrado nas proximidades.</string>
+    <string name="no_restaurantes">Nenhum restaurante encontrado nas proximidades.</string>
+    <string name="no_museus">Nenhum _museus encontrado nas proximidades.</string>
+    <string name="no_hotel">Nenhum hotel encontrado nas proximidades.</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="large_text">
@@ -137,5 +140,7 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

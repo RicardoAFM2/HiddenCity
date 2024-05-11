@@ -2,8 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".Museus">
 
     <ImageView
         android:id="@+id/voltar"
@@ -36,6 +38,15 @@
         app:layout_constraintTop_toBottomOf="@+id/textView9"
         tools:ignore="MissingConstraints" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/procurar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_edit_text"
+        app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="-16dp" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/results_recycler_view"
@@ -50,13 +61,12 @@
         android:id="@+id/text_view_no_results"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/no_monuments_found"
+        android:text="@string/no_museus"
         android:visibility="visible"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
         tools:ignore="MissingConstraints" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

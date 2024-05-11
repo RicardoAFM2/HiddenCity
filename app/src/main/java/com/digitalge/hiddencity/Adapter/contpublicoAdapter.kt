@@ -22,6 +22,7 @@ class contpublicoAdapter(
     private val onItemClicked: (Guia_e_Locais) -> Unit
 ) : RecyclerView.Adapter<contpublicoAdapter.GuiaViewHolder>() {
     private val placesClient: PlacesClient = Places.createClient(context)
+    private var originalGuias: List<Guia_e_Locais> = guias.toList()
 
     class GuiaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textViewNome: TextView = itemView.findViewById(R.id.text_place_name)
@@ -63,7 +64,17 @@ class contpublicoAdapter(
     override fun getItemCount() = guias.size
 
     fun updateGuias(newGuias: List<Guia_e_Locais>) {
-        guias = newGuias
+        guias = newGuias.toMutableList()
+        originalGuias = newGuias.toList()
+        notifyDataSetChanged()
+    }
+
+    fun filter(query: String) {
+        guias = if (query.isEmpty()) {
+            originalGuias.toMutableList()
+        } else {
+            originalGuias.filter { it.Nome.contains(query, ignoreCase = true) }.toMutableList()
+        }
         notifyDataSetChanged()
     }
 }

@@ -9,6 +9,7 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +21,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HiddenCity"
         tools:targetApi="31">
+        <activity
+            android:name=".hoteis"
+            android:exported="false" />
+        <activity
+            android:name=".Restaurantes"
+            android:exported="false" />
+        <activity
+            android:name=".Museus"
+            android:exported="false" />
         <activity
             android:name=".detalhes_local_marcador"
             android:exported="false" />

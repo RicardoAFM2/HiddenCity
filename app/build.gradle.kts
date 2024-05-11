@@ -66,7 +66,7 @@ dependencies {
 
     implementation ("com.squareup.okhttp3:okhttp:4.9.0")
 
-    implementation ("androidx.fragment:fragment:1.6.2")
+    implementation ("androidx.fragment:fragment:1.7.0")
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
@@ -82,6 +82,9 @@ dependencies {
     implementation ("com.squareup.picasso:picasso:2.71828")
 
     implementation ("com.google.android.libraries.places:places:3.4.0")
+
+
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.1.1")
 
 
     ksp("androidx.room:room-compiler:2.6.1")

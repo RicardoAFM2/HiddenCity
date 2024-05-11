@@ -1,7 +1,7 @@
 package com.digitalge.hiddencity
 
-
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -13,8 +13,11 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.digitalge.hiddencity.Adapter.MonumentAdapter
@@ -23,12 +26,10 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.model.PlaceLikelihood
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 
-
-class monumento : AppCompatActivity() {
+class hoteis : AppCompatActivity() {
 
 
     private lateinit var placesClient: PlacesClient
@@ -39,9 +40,10 @@ class monumento : AppCompatActivity() {
         private const val REQUEST_LOCATION_PERMISSION = 1
     }
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_monumento)
+        setContentView(R.layout.activity_hoteis)
 
         if (!Places.isInitialized()) {
             Places.initialize(applicationContext, "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
@@ -66,7 +68,6 @@ class monumento : AppCompatActivity() {
                 (recyclerView.adapter as MonumentAdapter).filter(s.toString())
             }
         })
-
         val backButton: ImageView = findViewById(R.id.voltar)
         backButton.setOnClickListener {
             onBackPressed()
@@ -140,20 +141,8 @@ class monumento : AppCompatActivity() {
 
     private fun isMonument(type: Place.Type): Boolean {
         val monumentTypes = setOf(
-            Place.Type.CEMETERY,
-            Place.Type.CHURCH,
-            Place.Type.HINDU_TEMPLE,
-            Place.Type.MOSQUE,
-            Place.Type.SYNAGOGUE,
-            Place.Type.TOURIST_ATTRACTION,
-            Place.Type.UNIVERSITY,
-            Place.Type.STADIUM,
-            Place.Type.NATURAL_FEATURE,
-            Place.Type.BOOK_STORE,
-            Place.Type.CASINO,
-            Place.Type.COURTHOUSE,
-            Place.Type.DEPARTMENT_STORE,
-            Place.Type.POINT_OF_INTEREST
+            Place.Type.CITY_HALL,
+
         )
 
         // Verifica se a lista de tipos do lugar inclui algum dos tipos considerados monumentos.
@@ -228,4 +217,3 @@ class monumento : AppCompatActivity() {
 
 
 }
-

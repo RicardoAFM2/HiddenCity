@@ -4,8 +4,11 @@ package com.digitalge.hiddencity
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -67,6 +70,17 @@ class Lista_de_Favoritos : Fragment(R.layout.fragment_lista_de_favoritos) {
             }
         }
 
+        val searchEditText = view.findViewById<EditText>(R.id.search_edit_text)
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                adapter.filter(s.toString())
+            }
+        })
+
         loadData()  // Carrega os dados inicialmente
     }
 
@@ -82,10 +96,11 @@ class Lista_de_Favoritos : Fragment(R.layout.fragment_lista_de_favoritos) {
 
 
     private fun loadData() {
-        val userId = getUserId()  // Assegure-se de que este método não acessa o banco de dados diretamente
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {  // Usando Dispatchers.IO para operações de I/O
-            val favorites = favoritosDao.buscarFavoritosPorUtilizadorId(userId)  // Filtra por ID de usuário
-            withContext(Dispatchers.Main) {  // Troca para a UI thread para atualizar a UI
+        val userId = getUserId()
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val favorites = favoritosDao.buscarFavoritosPorUtilizadorId(userId)
+            withContext(Dispatchers.Main) {
+                adapter.setOriginalGuias(favorites)
                 adapter.updateFavorites(favorites)
             }
         }

@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
@@ -63,12 +64,41 @@ class Home : Fragment(R.layout.fragment_home) {
 
             }
         }
+        val MuseusLayout = view?.findViewById<LinearLayout>(R.id.Museus)
+        if (MuseusLayout != null) {
+            MuseusLayout.setOnClickListener {
+                // Iniciar a Activity que mostra os detalhes dos monumentos
+                val intent = Intent(activity, Museus::class.java)
+                startActivity(intent)
+
+            }
+        }
+        val HotéisLayout = view?.findViewById<LinearLayout>(R.id.Hotéis)
+        if (HotéisLayout != null) {
+            HotéisLayout.setOnClickListener {
+                // Iniciar a Activity que mostra os detalhes dos monumentos
+                val intent = Intent(activity, Museus::class.java)
+                startActivity(intent)
+
+            }
+        }
+
+        val RestaurantesLayout = view?.findViewById<LinearLayout>(R.id.Restaurantes)
+        if (RestaurantesLayout != null) {
+            RestaurantesLayout.setOnClickListener {
+                // Iniciar a Activity que mostra os detalhes dos monumentos
+                val intent = Intent(activity, Museus::class.java)
+                startActivity(intent)
+
+            }
+        }
     }
     //Função para por as imagens
     private fun fetchPlaceImages() {
         val placeFields = listOf(Place.Field.PHOTO_METADATAS)
-        val placeIdsToFetch  = listOf("ChIJHW-ANATCxUcRgGI4ctqwfQM", "ChIJmQJIxlVYwokRLgeuocVOGVU")
 
+        //imagems no topo
+        val placeIdsToFetch  = listOf("ChIJHW-ANATCxUcRgGI4ctqwfQM", "ChIJmQJIxlVYwokRLgeuocVOGVU")
         placeIdsToFetch.forEach { placeId ->
             val request = FetchPlaceRequest.newInstance(placeId, placeFields)
             placesClient.fetchPlace(request).addOnSuccessListener { response ->
@@ -89,7 +119,38 @@ class Home : Fragment(R.layout.fragment_home) {
                 Log.e("API_ERROR", "Failed to fetch place: ${e.message}")
             }
         }
+        val placesToFetch = mapOf(
+            "ChIJCb_8QuJkJA0RPP5j4P4wVDo" to R.id.Monumentos_imagem,
+            "ChIJD3uTd9hx5kcR1IQvGfr8dbk" to R.id.Museus_imagem,
+            "ChIJkyQqpeVkJA0R9OXKcd6vwx0" to R.id.Restaurantes_imagem,
+            "ChIJRbfU0jBlJA0Rn_ed48aSGm8" to R.id.Hoteis_imagem
+        )
+
+        placesToFetch.forEach { (placeId, imageViewId) ->
+            val request = FetchPlaceRequest.newInstance(placeId, placeFields)
+            placesClient.fetchPlace(request).addOnSuccessListener { response ->
+                response.place.photoMetadatas?.firstOrNull()?.let { photoMetadata ->
+                    val photoRequest = FetchPhotoRequest.builder(photoMetadata).build()
+                    placesClient.fetchPhoto(photoRequest).addOnSuccessListener { fetchPhotoResponse ->
+                        updateImageView(imageViewId, fetchPhotoResponse.bitmap)
+                    }.addOnFailureListener { e ->
+                        Log.e("API_ERROR", "Failed to fetch photo: ${e.message}")
+                    }
+                }
+            }.addOnFailureListener { e ->
+                Log.e("API_ERROR", "Failed to fetch place: ${e.message}")
+            }
+        }
     }
+
+
+
+    private fun updateImageView(imageViewId: Int, bitmap: Bitmap) {
+        val imageView = view?.findViewById<ImageView>(imageViewId)
+        imageView?.setImageBitmap(bitmap)
+    }
+
+
 
     //Função para mudar as imagens quando passa um x tempo
     private fun setupImageAutoRotation() {

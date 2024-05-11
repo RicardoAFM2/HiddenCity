@@ -2,6 +2,7 @@ package com.digitalge.hiddencity
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -51,11 +52,13 @@ class detalhes_local_marcador : AppCompatActivity() {
         }
 
 
+
         setupRecyclerView()
         toggleDescriptionVisibility()
         setupLocationUpdates()
         loadLocalData(placeID)
     }
+
 
     private fun fetchComments(placeID: String) {
         val db = AppDatabase.getDatabase(this)
@@ -215,10 +218,27 @@ class detalhes_local_marcador : AppCompatActivity() {
     private fun setupRecyclerView() {
         recyclerView = findViewById(R.id.commentsRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = CommentsAdapter(mutableListOf())
+
+        val loggedInUserId = getUserId()
+        val onCommentClick: (Comentarios, Boolean) -> Unit = { comentario, isSameUser ->
+            if (isSameUser) {
+                openFragmentInMainActivity("Contas")
+            } else {
+                openFragmentInMainActivity("Conta_publica")
+            }
+        }
+        // Inicializando o adapter com todos os parâmetros necessários
+        adapter = CommentsAdapter(mutableListOf(), this, loggedInUserId, onCommentClick)
+
         recyclerView.adapter = adapter
     }
 
+    private fun openFragmentInMainActivity(fragmentTag: String) {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra("OPEN_FRAGMENT", fragmentTag)
+        }
+        startActivity(intent)
+    }
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1

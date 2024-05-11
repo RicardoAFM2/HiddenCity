@@ -1,5 +1,6 @@
 package com.digitalge.hiddencity.Dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -40,6 +41,9 @@ interface UtilizadorDao {
     suspend fun atualizarImagemUrl(userId: Int, imageUrl: String)
     @Query("SELECT * FROM Utilizador WHERE IdUtilizador = :userId")
     suspend fun buscarPorId(userId: Int): Utilizador
+
+    @Query("SELECT Imagem FROM Utilizador WHERE IdUtilizador = :userId")
+    fun getUserAvatarUrlById(userId: Int): LiveData<String>
 
 
 }

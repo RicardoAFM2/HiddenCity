@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.digitalge.hiddencity.Base_de_Dados.Guia
 import com.digitalge.hiddencity.Guia_cont
 import com.digitalge.hiddencity.R
+import java.util.Locale
 
 class GuiaAdapter(
     var guias: List<Guia>,
@@ -94,5 +95,25 @@ class GuiaAdapter(
     fun updateGuias(newGuias: List<Guia>) {
         this.guias = newGuias
         notifyDataSetChanged()
+    }
+
+    private var originalGuias: MutableList<Guia> = mutableListOf()
+
+    init {
+        originalGuias = guias.toMutableList()  // Inicializa originalGuias
+    }
+    fun filter(text: String) {
+        val filteredList = if (text.isEmpty()) {
+            originalGuias
+        } else {
+            originalGuias.filter { guia ->
+                guia.Nome.toLowerCase(Locale.ROOT).contains(text.toLowerCase(Locale.ROOT))
+            }.toMutableList()
+        }
+        updateGuias(filteredList)
+    }
+    fun setOriginalGuias(guias: List<Guia>) {
+        originalGuias.clear()
+        originalGuias.addAll(guias)
     }
 }

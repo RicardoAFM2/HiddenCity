@@ -81,7 +81,8 @@ class Guia_cont : AppCompatActivity() {
                 Log.d("Guia_cont", "Lixeira clicada")
                 currentGuiaELocais?.let {
                     confirmDeletion(it)
-                } ?: Toast.makeText(this@Guia_cont, "Nenhum item selecionado", Toast.LENGTH_SHORT).show()
+                } ?: Toast.makeText(this@Guia_cont, "Nenhum item selecionado", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
         val layoutRoot = findViewById<View>(R.id.layoutRoot)
@@ -96,9 +97,24 @@ class Guia_cont : AppCompatActivity() {
             addButton.visibility = View.GONE
         }
 
+        val searchEditText = findViewById<EditText>(R.id.search_edit_text)
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                adapter.filter(s.toString())
+            }
+
+            override fun afterTextChanged(s: Editable) {
+            }
+        })
+
+
         setupRecyclerView()
         fetchDataFromDatabase(guiaId)
     }
+
 
     private fun showDialogWithRecyclerView() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_recycler_view, null)
@@ -135,9 +151,15 @@ class Guia_cont : AppCompatActivity() {
             .setTitle("Pesquisar locais")
             .setView(dialogView)
             .setPositiveButton("OK") { dialog, which ->
-                savePlaceToDatabase(currentSelectedPlace)
+                if (currentSelectedPlace != null) {
+                    savePlaceToDatabase(currentSelectedPlace)
+                }
             }
             .setNegativeButton("Cancelar", null)
+            .setOnDismissListener {
+                // Isto é chamado quando o diálogo é descartado
+                adapter.notifyDataSetChanged()  // Força a RecyclerView a atualizar
+            }
             .show()
     }
 
@@ -151,7 +173,10 @@ class Guia_cont : AppCompatActivity() {
     private fun savePlaceToDatabase(selectedPlace: Pair<String, String>?) {
         selectedPlace?.let { place ->
             // Obtenha o ID da guia de algum lugar, por exemplo, passado através da Intent
-            val guiaId = intent.getIntExtra("NOME_DO_CRIADOR", -1) // -1 é um valor padrão se o ID não for encontrado
+            val guiaId = intent.getIntExtra(
+                "NOME_DO_CRIADOR",
+                -1
+            ) // -1 é um valor padrão se o ID não for encontrado
 
             // Crie o objeto para inserir no banco
             val newEntry = Guia_e_Locais(
@@ -163,9 +188,15 @@ class Guia_cont : AppCompatActivity() {
 
             // Inserir no banco de dados
             CoroutineScope(Dispatchers.IO).launch {
-                AppDatabase.getDatabase(applicationContext).Guia_e_LocaisDao().inserirGuia_e_Locais(newEntry)
+                AppDatabase.getDatabase(applicationContext).Guia_e_LocaisDao()
+                    .inserirGuia_e_Locais(newEntry)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(applicationContext, "Local adicionado com sucesso!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Local adicionado com sucesso!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    fetchDataFromDatabase(guiaId)  // Re-fetch the data to update the UI immediately
                 }
             }
         }
@@ -189,7 +220,8 @@ class Guia_cont : AppCompatActivity() {
     private fun fetchDataFromDatabase(guiaId: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             // Buscar dados do banco de dados que correspondem ao ID da guia
-            val guiaseLocais = AppDatabase.getDatabase(applicationContext).Guia_e_LocaisDao().buscarPorIdGuia(guiaId)
+            val guiaseLocais = AppDatabase.getDatabase(applicationContext).Guia_e_LocaisDao()
+                .buscarPorIdGuia(guiaId)
 
             // Filtrar dados com base no ID da guia recebido
             val filteredPlaces = guiaseLocais.filter { it.IdGuia == guiaId }
@@ -201,7 +233,11 @@ class Guia_cont : AppCompatActivity() {
                 if (placeItems.isNotEmpty()) {
                     adapter.updateData(placeItems)
                 } else {
-                    Toast.makeText(applicationContext, "Nenhum local encontrado para esta guia.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Nenhum local encontrado para esta guia.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -228,10 +264,12 @@ class Guia_cont : AppCompatActivity() {
     private fun onPlaceItemLongClick(placeItem: PlaceItem) {
         // Lançar uma corrotina na thread principal, pois a visibilidade de uma view é uma operação de UI
         CoroutineScope(Dispatchers.Main).launch {
-          val guiaELocais = withContext(Dispatchers.IO) {
-                val placeId = placeItem.placeId  // Aqui não precisa converter para Int, supondo que o placeID seja uma String
+            val guiaELocais = withContext(Dispatchers.IO) {
+                val placeId =
+                    placeItem.placeId  // Aqui não precisa converter para Int, supondo que o placeID seja uma String
                 Log.d("Guia_cont", "Buscando no banco com placeID: $placeId")
-                AppDatabase.getDatabase(applicationContext).Guia_e_LocaisDao().buscarPorPlaceID(placeId).firstOrNull()
+                AppDatabase.getDatabase(applicationContext).Guia_e_LocaisDao()
+                    .buscarPorPlaceID(placeId).firstOrNull()
             }
 
             // Verificar o resultado da consulta e ajustar a visibilidade do ícone de lixo
@@ -239,7 +277,11 @@ class Guia_cont : AppCompatActivity() {
                 currentGuiaELocais = guiaELocais
                 trashIcon.visibility = View.VISIBLE
             } else {
-                Toast.makeText(this@Guia_cont, "Item não encontrado no banco de dados", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@Guia_cont,
+                    "Item não encontrado no banco de dados",
+                    Toast.LENGTH_SHORT
+                ).show()
                 trashIcon.visibility = View.GONE
             }
         }
@@ -254,7 +296,8 @@ class Guia_cont : AppCompatActivity() {
 
     fun getLoggedInUserName(): String {
         val sharedPref = getSharedPreferences("AppPrefs", MODE_PRIVATE)
-        return sharedPref.getString("UteNome", "Utilizador Desconhecido") ?: "Utilizador Desconhecido"
+        return sharedPref.getString("UteNome", "Utilizador Desconhecido")
+            ?: "Utilizador Desconhecido"
     }
 
     private fun confirmDeletion(guiaELocais: Guia_e_Locais) {
@@ -272,9 +315,19 @@ class Guia_cont : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             AppDatabase.getDatabase(applicationContext).Guia_e_LocaisDao().Eliminar(guiaELocais)
             withContext(Dispatchers.Main) {
-                Toast.makeText(applicationContext, "Item excluído com sucesso", Toast.LENGTH_SHORT).show()
-                // Atualize sua lista aqui, se necessário
-
+                // Encontre o índice do item na lista antes de removê-lo
+                val index = adapter.items.indexOfFirst { it.placeId == guiaELocais.placeID }
+                if (index != -1) {
+                    // Remove o item da lista
+                    adapter.items.removeAt(index)
+                    // Notifica o adapter que um item foi removido
+                    adapter.notifyItemRemoved(index)
+                    Toast.makeText(
+                        applicationContext,
+                        "Item excluído com sucesso",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

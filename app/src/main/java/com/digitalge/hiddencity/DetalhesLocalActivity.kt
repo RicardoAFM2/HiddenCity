@@ -2,6 +2,7 @@ package com.digitalge.hiddencity
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +21,7 @@ import androidx.room.Room
 import com.digitalge.hiddencity.Adapter.CommentsAdapter
 import com.digitalge.hiddencity.Base_de_Dados.Comentarios
 import com.digitalge.hiddencity.Base_de_Dados.Favoritos
+import com.digitalge.hiddencity.Base_de_Dados.Favoritos_e_Locais
 import com.digitalge.hiddencity.Dao.ComentariosDao
 import com.digitalge.hiddencity.databinding.ActivityDetalhesLocalBinding
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -49,6 +52,8 @@ class DetalhesLocalActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetalhesLocalBinding
     private var userRating: Float = 0f
     private lateinit var adapter: CommentsAdapter
+    private var placeLatitude: Double? = null
+    private var placeLongitude: Double? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +70,9 @@ class DetalhesLocalActivity : AppCompatActivity() {
         val placeID = intent.getStringExtra("place_id")
         Log.d("DetalhesLocalActivity", "placeID recebido: $placeID")
 
+
+        fetchPlaceDetails(placeID)
+        setupDistanceClickListener()
         fetchPlaceDetails(placeID)
         clicarimagem()
         setupFavoriteButton()
@@ -74,10 +82,46 @@ class DetalhesLocalActivity : AppCompatActivity() {
         setupRecyclerView()
     }
 
+    private fun setupDistanceClickListener() {
+        binding.localDistanceTextView.setOnClickListener {
+            placeLatitude?.let { lat ->
+                placeLongitude?.let { lng ->
+                    val intent = Intent(this, mapa_caminho::class.java).apply {
+                        putExtra("local_lat", lat)
+                        putExtra("local_lng", lng)
+                        putExtra("place_id", placeID)  // Ainda pode passar o placeID se necessário
+                        putExtra("place_name", binding.localNameTextView.text.toString())  // Passa o nome do local
+                        Log.d("DetalhesLocalActivity", "Enviando para mapa_caminho: Latitude = $lat, Longitude = $lng, Nome = ${binding.localNameTextView.text}")
+
+
+                    }
+                    startActivity(intent)
+                } ?: Toast.makeText(this, "Localização do local não disponível.", Toast.LENGTH_SHORT).show()
+            } ?: Toast.makeText(this, "Localização do local não disponível.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun openFragmentInMainActivity(fragmentTag: String, userId: Int? = null) {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra("OPEN_FRAGMENT", fragmentTag)
+            if (userId != null) {
+                putExtra("USER_ID", userId)
+            }
+        }
+        startActivity(intent)
+    }
 
     private fun setupRecyclerView() {
         binding.commentsRecyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = CommentsAdapter(mutableListOf())
+        val loggedInUserId = getUserId()
+        val onCommentClick: (Comentarios, Boolean) -> Unit = { comentario, isSameUser ->
+            if (isSameUser) {
+                openFragmentInMainActivity("Contas")
+            } else {
+                openFragmentInMainActivity("Conta_publica", comentario.IdUtilizador)
+            }
+        }
+        adapter = CommentsAdapter(mutableListOf(), this, loggedInUserId, onCommentClick)
         binding.commentsRecyclerView.adapter = adapter
 
     }
@@ -130,28 +174,6 @@ class DetalhesLocalActivity : AppCompatActivity() {
         }
 
         binding.submitButton.setOnClickListener { GuardarComentario() }
-    }
-
-    private fun showCommentsForPlace(placeId: String) {
-        val comentariosDao = AppDatabase.getDatabase(applicationContext).ComentariosDao()
-        lifecycleScope.launch {
-            val comentarios = comentariosDao.buscarComentariosPorPlaceId(placeId)
-            withContext(Dispatchers.Main) {
-                displayComments(comentarios)
-            }
-        }
-    }
-
-    private fun displayComments(comentarios: List<Comentarios>) {
-        binding.commentsRecyclerView.removeAllViews()
-
-        comentarios.forEach { comentario ->
-            val commentView = TextView(this).apply {
-                text = "${comentario.Nome}: ${comentario.Descricao} - Avaliação: ${comentario.Avalicao}"
-                // Defina outros estilos como necessário aqui
-            }
-            binding.commentsRecyclerView.addView(commentView)
-        }
     }
 
     private fun setupRatingBar() {
@@ -294,6 +316,14 @@ class DetalhesLocalActivity : AppCompatActivity() {
     private fun updateUIWithPlaceDetails(place: Place) {
         binding.localNameTextView.text = place.name
 
+        // Armazena a latitude e longitude do local em variáveis de instância
+        place.latLng?.let {
+            placeLatitude = it.latitude
+            placeLongitude = it.longitude
+            Log.d("DetalhesLocalActivity", "Localização do local: Latitude = $placeLatitude, Longitude = $placeLongitude")
+
+        }
+
         // Buscar a localização atual do usuário e calcular a distância
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -416,5 +446,5 @@ class DetalhesLocalActivity : AppCompatActivity() {
         }
     }
 
-
 }
+

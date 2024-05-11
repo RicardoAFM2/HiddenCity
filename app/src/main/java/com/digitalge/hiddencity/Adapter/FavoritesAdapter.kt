@@ -16,10 +16,12 @@ import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPhotoRequest
 import com.digitalge.hiddencity.Base_de_Dados.Favoritos
+import com.digitalge.hiddencity.Base_de_Dados.Guia
 import com.digitalge.hiddencity.DetalhesLocalActivity
 import com.digitalge.hiddencity.R
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import java.util.Locale
 
 
 class FavoritesAdapter(
@@ -149,6 +151,26 @@ class FavoritesAdapter(
             favorites.removeAt(index)
             notifyItemRemoved(index)
         }
+    }
+
+    private var originalGuias: MutableList<Favoritos> = mutableListOf()
+
+
+    fun filter(text: String) {
+        val filteredList = if (text.isEmpty()) {
+            originalGuias.toList()  // Garantir que está utilizando uma cópia da lista original
+        } else {
+            originalGuias.filter { it.Nome.toLowerCase(Locale.ROOT).contains(text.toLowerCase(Locale.ROOT)) }
+        }
+        favorites.clear()
+        favorites.addAll(filteredList)
+        notifyDataSetChanged()
+    }
+
+    fun setOriginalGuias(favorites: List<Favoritos>) {
+        originalGuias.clear()
+        originalGuias.addAll(favorites)
+        notifyDataSetChanged()
     }
 }
 

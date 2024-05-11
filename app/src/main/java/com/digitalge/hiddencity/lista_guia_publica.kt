@@ -2,10 +2,13 @@ package com.digitalge.hiddencity
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +21,7 @@ class lista_guia_publica : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var publicoAdapter: PublicoAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -42,6 +46,17 @@ class lista_guia_publica : Fragment() {
             replaceFragment(Lista_de_Guia())
         }
 
+        val searchEditText: EditText = view.findViewById(R.id.search_edit_text)
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                publicoAdapter.filter(s.toString())
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
         loadGuiasPublicos()
 
         return view
@@ -59,8 +74,10 @@ class lista_guia_publica : Fragment() {
         GlobalScope.launch(Dispatchers.IO) {
             val guiasPublicos = AppDatabase.getDatabase(requireContext()).GuiaDao().buscarGuiaPublicos()
             launch(Dispatchers.Main) {
+                publicoAdapter.setOriginalGuias(guiasPublicos)
                 publicoAdapter.updateGuias(guiasPublicos)
             }
         }
     }
+
 }

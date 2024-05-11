@@ -1,32 +1,22 @@
 package com.digitalge.hiddencity
 
-
-import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainer
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.bumptech.glide.Glide
-import com.digitalge.hiddencity.AppDatabase.Companion.getDatabase
-import com.digitalge.hiddencity.Base_de_Dados.Favoritos
+import com.digitalge.hiddencity.Base_de_Dados.Privasitade
 import com.digitalge.hiddencity.Base_de_Dados.Utilizador
 import com.digitalge.hiddencity.databinding.FragmentContasBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.SelectInstance
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.util.zip.Inflater
 
-class Contas : Fragment() {
+class Conta_publica : Fragment() {
 
     private var _binding: FragmentContasBinding? = null
     private val binding get() = _binding!!
@@ -41,9 +31,14 @@ class Contas : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val userId = arguments?.getInt("USER_ID", -1) ?: -1
+        if (userId != -1) {
+            loadUserData(userId)
+        }
+
         Clicarnaimagem()
         setupText()
-        loadUserData()
     }
 
     private fun Clicarnaimagem(){
@@ -82,46 +77,53 @@ class Contas : Fragment() {
             .commit()
     }
 
-    private fun getUserIdFromPreferences(): Int {
-        val sharedPreferences = requireActivity().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        return sharedPreferences.getInt("UteID", -1)  // -1 seria um valor padrão indicando que nenhum usuário está logado
-    }
-
 
 
     private fun loadImageFromUri(imageUri: String) {
-        Log.d("LoadImage", "Attempting to load image from URI: $imageUri")
+
         Glide.with(this)
-            .load(imageUri)
+            .load(imageUri)  // Diretamente a Uri, se você está seguro que é uma Uri válida
             .error(R.drawable.ic_launcher_background)  // Imagem de erro
             .into(binding.imageViewAvatar)
+        Log.d("LoadImage", "Attempting to load image from URI: $imageUri")
+
     }
 
     private fun getDatabase(): AppDatabase {
         return Room.databaseBuilder(requireContext(), AppDatabase::class.java, "hiddencity.db").build()
     }
 
-    private fun loadUserData() {
-        val userId = getUserIdFromPreferences()  // Suponha que esta função obtenha o ID do usuário das SharedPreferences
-
+    private fun loadUserData(userId: Int) {
         lifecycleScope.launch {
-            val utilizador = withContext(Dispatchers.IO) {
-                getDatabase().UtilizadorDao().buscarPorId(userId)
+            val utilizador: Utilizador?
+            val privacidade: Privasitade?
+            withContext(Dispatchers.IO) {
+                // Executando consultas no thread de I/O
+                utilizador = getDatabase().UtilizadorDao().buscarPorId(userId)
+                privacidade = getDatabase().PrivasitadeDao().buscarPrivasitadePorUserId(userId)
             }
-            if (utilizador != null) {
-                withContext(Dispatchers.Main) {
-                    updateUI(utilizador)
-                }
-            } else {
-                Log.d("LoadUserData", "Utilizador não encontrado.")
+            // Atualizando a UI no thread principal
+            utilizador?.let {
+                updateUI(it, privacidade)
             }
         }
     }
 
-    private fun updateUI(utilizador: Utilizador) {
+    private fun updateUI(utilizador: Utilizador, privacidade: Privasitade?) {
         binding.textViewNome.text = utilizador.Nome
         binding.textViewIdUtilizador.text = utilizador.IdUtilizador.toString()
         loadImageFromUri(utilizador.Imagem)
+        if (privacidade?.conta_privada == 1) {
+            binding.includeFavoritos.root.visibility = View.GONE
+            binding.includeGuiasCriados.root.visibility = View.GONE
+            binding.includePontosCriados.root.visibility = View.GONE
+            binding.includePontosVisitados.root.visibility = View.GONE
+        }
+
+        binding.includeFavoritos.root.visibility = if (privacidade?.Privar_os_favoritos == 1) View.GONE else View.VISIBLE
+        binding.includeGuiasCriados.root.visibility = if (privacidade?.privar_os_guias_criados == 1) View.GONE else View.VISIBLE
+        binding.includePontosCriados.root.visibility = if (privacidade?.privar_os_pontos_criados == 1) View.GONE else View.VISIBLE
+        binding.includePontosVisitados.root.visibility = if (privacidade?.privar_os_pontos_visitados == 1) View.GONE else View.VISIBLE
     }
 
 }

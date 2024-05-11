@@ -27,13 +27,14 @@ data class PlaceItem(
 
 
 class SimpleAdapter(
-    private val items: MutableList<PlaceItem>,
+    var items: MutableList<PlaceItem>,
     private val onItemClick: (PlaceItem) -> Unit,
     private val onItemLongClick: (PlaceItem) -> Unit,  // Adicione um handler para long press
     private val placesClient: PlacesClient
 ) : RecyclerView.Adapter<SimpleAdapter.ViewHolder>() {
 
     var currentPosition: Int = RecyclerView.NO_POSITION // Aqui adicionamos a posição atual
+    private var originalItems: List<PlaceItem> = items.toList()
 
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -99,8 +100,8 @@ class SimpleAdapter(
     override fun getItemCount(): Int = items.size
 
     fun updateData(newItems: List<PlaceItem>) {
-        items.clear()
-        items.addAll(newItems)
+        originalItems = newItems.toList()  // Atualize a lista original com novos itens
+        items = newItems.toMutableList()   // Atualize os itens atuais
         notifyDataSetChanged()
     }
 
@@ -108,5 +109,16 @@ class SimpleAdapter(
         currentPosition = RecyclerView.NO_POSITION
         notifyDataSetChanged()
     }
+
+    fun filter(query: String) {
+        if (query.isEmpty()) {
+            items = originalItems.toMutableList()
+        } else {
+            items = originalItems.filter { it.name.contains(query, ignoreCase = true) }.toMutableList()
+        }
+        notifyDataSetChanged()
+    }
+
+
 }
 

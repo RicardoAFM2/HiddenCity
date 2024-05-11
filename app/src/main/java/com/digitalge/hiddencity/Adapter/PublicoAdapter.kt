@@ -12,6 +12,8 @@ import com.digitalge.hiddencity.Base_de_Dados.Guia_e_Locais
 import com.digitalge.hiddencity.R
 
 class PublicoAdapter(private var guias: List<Guia>, private val onItemClicked: (Guia) -> Unit) : RecyclerView.Adapter<PublicoAdapter.GuiaViewHolder>() {
+    private var originalGuias: MutableList<Guia> = guias.toMutableList()  // Cria uma cópia da lista original
+
     class GuiaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textViewNome: TextView = itemView.findViewById(R.id.text_place_name)
         val imageView: ImageView = itemView.findViewById(R.id.image_place)
@@ -44,5 +46,19 @@ class PublicoAdapter(private var guias: List<Guia>, private val onItemClicked: (
     fun updateGuias(newGuias: List<Guia>) { // Corrigindo o tipo de Lista aqui
         guias = newGuias
         notifyDataSetChanged()
+    }
+    fun setOriginalGuias(guias: List<Guia>) {
+        originalGuias.clear()
+        originalGuias.addAll(guias)
+        notifyDataSetChanged()
+    }
+
+    fun filter(text: String) {
+        val filteredList = if (text.isEmpty()) {
+            originalGuias
+        } else {
+            originalGuias.filter { it.Nome.contains(text, ignoreCase = true) }.toMutableList()
+        }
+        updateGuias(filteredList)
     }
 }

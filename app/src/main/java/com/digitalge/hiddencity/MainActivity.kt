@@ -21,6 +21,24 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.fragmentContainer, Home())
                 .commit()
         }
+
+        val fragmentTag = intent.getStringExtra("OPEN_FRAGMENT")
+        val userId = intent.getIntExtra("USER_ID", -1)
+        if (fragmentTag != null) {
+            when (fragmentTag) {
+                "Contas" -> replaceFragment(Contas())
+                "Conta_publica" -> {
+                    val fragment = Conta_publica().apply {
+                        arguments = Bundle().apply {
+                            putInt("USER_ID", userId)
+                        }
+                    }
+                    replaceFragment(fragment)
+                }
+            }
+        }
+
+
     }
 
     private fun ClicarNaImagem() {
@@ -52,9 +70,4 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.commit()
     }
 
-    internal fun onOpenMap() {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, Mapa())
-            .commitNow()
-    }
 }
