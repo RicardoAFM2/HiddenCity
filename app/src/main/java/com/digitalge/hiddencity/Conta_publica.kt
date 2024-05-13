@@ -37,24 +37,26 @@ class Conta_publica : Fragment() {
             loadUserData(userId)
         }
 
-        Clicarnaimagem()
+
+        binding.includeFavoritos.root.setOnClickListener {
+            navigateToFragment(Lista_de_favoritos_publico(), userId)
+        }
+
+        binding.includeGuiasCriados.root.setOnClickListener {
+            navigateToFragment(Lista_de_Guia_publico(), userId)
+        }
+
+        binding.includePontosCriados.root.setOnClickListener {
+            navigateToFragment(Pontos_criados_publicos(), userId)
+        }
+
+        binding.includePontosVisitados.root.setOnClickListener {
+            navigateToFragment(pontos_visitados_publico(), userId)
+        }
+
         setupText()
     }
 
-    private fun Clicarnaimagem(){
-        binding.includeFavoritos.root.setOnClickListener {
-            navigateToFragment(Lista_de_Favoritos())
-        }
-        binding.includeGuiasCriados.root.setOnClickListener {
-            navigateToFragment(Lista_de_Guia())
-        }
-        binding.includePontosCriados.root.setOnClickListener {
-            navigateToFragment(Pontos_criados())
-        }
-        binding.includePontosVisitados.root.setOnClickListener {
-            navigateToFragment(Pontos_visitados())
-        }
-    }
 
     private fun setupText() {
         //Mudar o texto para Favoritos
@@ -70,7 +72,16 @@ class Conta_publica : Fragment() {
         binding.includePontosVisitados.textViewItem.text = "Pontos Visitados"
     }
 
-    private fun navigateToFragment(fragment: Fragment) {
+    private fun navigateToFragment(fragment: Fragment, userId: Int? = null) {
+        // Criar um bundle para passar o userId
+        val args = Bundle()
+        userId?.let {
+            args.putInt("USER_ID", it)
+            args.putString("USER_NAME", it.toString())
+        }
+        fragment.arguments = args
+
+        // Navegar para o fragmento
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
             .addToBackStack(null)

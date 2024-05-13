@@ -25,4 +25,7 @@ interface FavoritosDao {
     fun buscarFavoritosPorUtilizadorId(UtilizadorId: Int): List<Favoritos>
     @Query("SELECT EXISTS(SELECT * FROM Utilizador WHERE IdUtilizador = :idUtilizador)")
     suspend fun isUserExists(idUtilizador: Int): Boolean
+
+    @Query("SELECT * FROM favoritos WHERE IdUtilizador = :userId")
+    fun buscarFavoritosPorUsuario(userId: Int): List<Favoritos>
 }

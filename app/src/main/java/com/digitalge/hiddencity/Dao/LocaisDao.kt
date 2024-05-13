@@ -22,4 +22,11 @@ interface LocaisDao {
     suspend fun buscarTodosLocais(): List<Locais>
     @Query("SELECT * FROM locais WHERE IdLocais = :id")
     suspend fun buscarLocalPorId(id: Int): Locais
+
+    @Query("SELECT * FROM Locais WHERE nome_uti = :nome_utili")
+    fun buscarLocaisPorCriador(nome_utili: String): List<Locais>
+
+    @Query("SELECT * FROM locais WHERE idUtilizador = :userId AND privacidade = 1")
+    fun buscarLocaisPublicosPorCriador(userId: Int): List<Locais>
+
 }

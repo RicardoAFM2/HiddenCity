@@ -6,11 +6,13 @@ import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.os.Looper
+import android.text.Html
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -26,20 +28,29 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.PolyUtil
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.IOException
 import org.json.JSONObject
+import okhttp3.*
+import org.json.JSONArray
+
 
 class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
 
+    private var lastKnownLocation: LatLng? = null
+    private var polyline: Polyline? = null
+
+
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var origin: LatLng
-    private lateinit var destination: LatLng
-    private var locationMarker: Marker? = null
+    private lateinit var mapFragment: SupportMapFragment
+    private var stepsList: List<Step> = emptyList()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mapa_caminho)
@@ -51,164 +62,312 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
         tvPlaceName.text = placeName
 
 
-        // Initialize the SupportMapFragment
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment?.getMapAsync { googleMap ->
-            onMapReady(googleMap)
-        }
+        mapFragment.getMapAsync(this)
 
-        setupModeButtons()
-    }
+        findViewById<Button>(R.id.btnDrive).setOnClickListener { updateRoute("driving") }
+        findViewById<Button>(R.id.btnWalk).setOnClickListener { updateRoute("walking") }
+        findViewById<Button>(R.id.btnBike).setOnClickListener { updateRoute("bicycling") }
+        findViewById<Button>(R.id.btnTransit).setOnClickListener { updateRoute("transit") }
 
-    private fun setupModeButtons() {
-        findViewById<Button>(R.id.btnDrive).setOnClickListener {
-            updateRoute("driving")
+        val btnClose = findViewById<ImageView>(R.id.btnClose)
+
+        // Defina um OnClickListener para o botão
+        btnClose.setOnClickListener {
+            // Finaliza a atividade atual e retorna para a anterior na pilha
+            onBackPressed()
         }
-        findViewById<Button>(R.id.btnWalk).setOnClickListener {
-            updateRoute("walking")
-        }
-        findViewById<Button>(R.id.btnBike).setOnClickListener {
-            updateRoute("bicycling")
-        }
-        findViewById<Button>(R.id.btnTransit).setOnClickListener {
-            updateRoute("transit")
-        }
-        findViewById<ImageView>(R.id.btnClose).setOnClickListener { onBackPressed() }
     }
 
     private fun updateRoute(mode: String) {
-        if (::origin.isInitialized && ::destination.isInitialized) {
-            // Limpa o mapa antes de desenhar a nova rota para o modo escolhido
-            map.clear()
-            // Adiciona marcadores novamente após limpar o mapa
-            map.addMarker(MarkerOptions().position(origin).title("Origem"))
-            map.addMarker(MarkerOptions().position(destination).title("Destino"))
-            // Chama a função para desenhar a rota com o novo modo
-            drawRoute(origin, destination, mode)
-        } else {
-            Toast.makeText(this, "Localização ainda não definida.", Toast.LENGTH_SHORT).show()
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            location?.let {
+                val origin = LatLng(it.latitude, it.longitude)
+                val destinationLat = intent.getDoubleExtra("local_lat", 0.0)
+                val destinationLng = intent.getDoubleExtra("local_lng", 0.0)
+                val destination = LatLng(destinationLat, destinationLng)
+
+                drawRoute(origin, destination, mode)
+            }
         }
     }
 
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        updateLocationUI()
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1)
-            return  // Sair do método se as permissões não forem concedidas
+        val destinationLat =
+            intent.getDoubleExtra("local_lat", 0.0) // Valor padrão 0.0 se não for encontrado
+        val destinationLng =
+            intent.getDoubleExtra("local_lng", 0.0) // Valor padrão 0.0 se não for encontrado
+        val destination = LatLng(destinationLat, destinationLng)
+
+        map.addMarker(MarkerOptions().position(destination).title("Destino"))
+        map.uiSettings.isZoomControlsEnabled = false
+        map.uiSettings.isZoomGesturesEnabled = true
+
+        // Checar permissões de localização
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                1
+            )
+            return
+        }
+        map.isMyLocationEnabled = true
+        map.uiSettings.isMyLocationButtonEnabled = true
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            location?.let {
+                val currentLocation = LatLng(it.latitude, it.longitude)
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20f))
+            }
         }
 
         fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             location?.let {
-                updateLocation(LatLng(it.latitude, it.longitude))
-                origin = LatLng(it.latitude, it.longitude)
-                destination = LatLng(intent.getDoubleExtra("local_lat", 0.0), intent.getDoubleExtra("local_lng", 0.0))  // Definindo a variável de classe
-
-                // Adicione marcadores para origem e destino
-                map.addMarker(MarkerOptions().position(origin).title("Origem"))
-                map.addMarker(MarkerOptions().position(destination).title("Destino"))
-
-                // Move a câmera para incluir ambos os pontos no centro do mapa
-                val bounds = LatLngBounds.Builder()
-                    .include(origin)
-                    .include(destination)
-                    .build()
-                map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
-
-                // Inicializa a rota inicial
-                drawRoute(origin, destination, "driving")
-            } ?: Toast.makeText(this, "Não foi possível obter a localização atual.", Toast.LENGTH_LONG).show()
+                val currentLocation = LatLng(it.latitude, it.longitude)
+                drawRoute(currentLocation, destination, "walking")
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20f))
+            }
         }
+
         startLocationUpdates()
+
     }
 
-    private fun updateLocation(location: LatLng) {
-        if (locationMarker == null) {
-            locationMarker = map.addMarker(MarkerOptions().position(location).title("A minha Localização"))
-        } else {
-            locationMarker?.position = location
-        }
-    }
+
     private fun startLocationUpdates() {
         val locationRequest = LocationRequest.create().apply {
-            interval = 10000  // 10 segundos
-            fastestInterval = 5000  // 5 segundos
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = 5000 // Intervalo de 5 segundos para atualizações
+            fastestInterval = 2000 // O intervalo mais rápido de 2 segundos
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY // Alta precisão
         }
 
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                locationResult.lastLocation?.let {
-                    val newLoc = LatLng(it.latitude, it.longitude)
-                    updateLocation(newLoc)
+                for (location in locationResult.locations) {
+                    val newLoc = LatLng(location.latitude, location.longitude)
+                    if (lastKnownLocation == null || isSignificantlyFar(newLoc, lastKnownLocation!!)) {
+                        lastKnownLocation = newLoc
+                        updateRouteToDestination(newLoc) // Atualiza a rota a partir da nova localização
+                    }
                 }
             }
         }
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // Solicitar permissões
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
             return
         }
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
 
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+    private fun isSignificantlyFar(currentLoc: LatLng, lastLoc: LatLng): Boolean {
+        val distance = FloatArray(1)
+        Location.distanceBetween(
+            currentLoc.latitude, currentLoc.longitude,
+            lastLoc.latitude, lastLoc.longitude,
+            distance
+        )
+        return distance[0] > 50 // Distância significativa para recalcular a rota
+    }
+
+    private fun updateRouteToDestination(currentLocation: LatLng) {
+        val destinationLat = intent.getDoubleExtra("local_lat", 0.0)
+        val destinationLng = intent.getDoubleExtra("local_lng", 0.0)
+        val destination = LatLng(destinationLat, destinationLng)
+        drawRoute(currentLocation, destination, "walking") // Assumindo modo a pé como exemplo
+    }
+
+    private fun showArrivalPopup() {
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setTitle("Chegada ao Destino")
+                .setMessage("Você chegou ao seu destino!")
+                .setPositiveButton("OK") { dialog, which ->
+                    finish() // Fecha a atividade e retorna para a atividade anterior
+                }
+                .setCancelable(false)
+                .show()
+        }
+    }
+
+    private fun updateLocationUI() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        map.isMyLocationEnabled = true
+        map.uiSettings.isMyLocationButtonEnabled = true
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // Permissões concedidas, reiniciar funcionalidades que precisam de localização
+            mapFragment.getMapAsync(this)
+        }
     }
 
 
     private fun drawRoute(origin: LatLng, destination: LatLng, mode: String) {
         val apiKey = "AIzaSyAY0UR5MevkM3u9EvJ-cgVqXjBH66uF5y0" // Substitua pela sua chave da API
-        val directionsUrl = getDirectionsUrl(origin, destination, mode, apiKey)
+        val modeDisplayName = getModeDisplayName(mode)
+        // Incluindo o parâmetro de idioma na URL
+        val url = "https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&mode=$mode&language=pt-BR&key=$apiKey"
 
-        // Faz a chamada HTTP para a Directions API
         val client = OkHttpClient()
-        val request = Request.Builder().url(directionsUrl).build()
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                Log.e("DirectionsAPI", "Falha na chamada da API de direções", e)
+        val request = Request.Builder().url(url).build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Tratar falhas na chamada
             }
 
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                val responseString = response.body?.string() ?: return
-                Log.d("API Response", responseString)  // Log da resposta completa
-                val jsonResponse = JSONObject(responseString)
-
-                if (jsonResponse.getString("status") == "OK") {
-                    val routes = jsonResponse.getJSONArray("routes")
-                    if (routes.length() > 0) {
-                        val route = routes.getJSONObject(0)
-                        val polyline = route.getJSONObject("overview_polyline").getString("points")
-                        val decodedPath = PolyUtil.decode(polyline)
-                        val duration = route.getJSONArray("legs").getJSONObject(0).getJSONObject("duration").getString("text")
-
-                        runOnUiThread {
-                            map.clear()  // Limpa rotas antigas e marcadores
-
-                            // Adiciona marcadores para origem e destino
-                            map.addMarker(MarkerOptions().position(origin).title("Origem"))
-                            map.addMarker(MarkerOptions().position(destination).title("Destino"))
-
-                            // Adiciona a rota decodificada ao mapa
-                            map.addPolyline(PolylineOptions().addAll(decodedPath).color(Color.BLUE)) // Ajuste a cor conforme necessário
-
-                            // Atualiza o tempo estimado de viagem
-                            val tvEstimatedTime = findViewById<TextView>(R.id.tvEstimatedTime)
-                            tvEstimatedTime.text = "Tempo estimado: $duration, Modo: ${mode.capitalize()}"
-                        }
+            override fun onResponse(call: Call, response: Response) {
+                val jsonData = response.body?.string()
+                if (response.isSuccessful && jsonData != null) {
+                    val duration = parseDuration(jsonData)
+                    runOnUiThread {
+                        val firstStep = stepsList.firstOrNull()
+                        findViewById<TextView>(R.id.tvNavigationInstruction).text = firstStep?.instruction ?: "Inicie sua rota"
+                        val tvEstimatedTime = findViewById<TextView>(R.id.tvEstimatedTime)
+                        tvEstimatedTime.text = "Tempo estimado: $duration, Modo: $modeDisplayName"
+                        drawPath(jsonData)
                     }
-                } else {
-                    Log.e("DirectionsAPI", "Erro na resposta da API: ${jsonResponse.getString("status")}")
                 }
             }
         })
     }
 
-    private fun getDirectionsUrl(origin: LatLng, destination: LatLng, mode: String, apiKey: String): String {
-        val strOrigin = "origin=${origin.latitude},${origin.longitude}"
-        val strDest = "destination=${destination.latitude},${destination.longitude}"
-        val parameters = "$strOrigin&$strDest&sensor=false&mode=$mode"
-        val output = "json"
-        return "https://maps.googleapis.com/maps/api/directions/$output?$parameters&key=$apiKey"
+    private fun drawPath(jsonData: String) {
+        val jsonObject = JSONObject(jsonData)
+        val routes = jsonObject.getJSONArray("routes")
+        if (routes.length() > 0) {
+            val legs = routes.getJSONObject(0).getJSONArray("legs")
+            if (legs.length() > 0) {
+                val route = routes.getJSONObject(0)
+                val overviewPolyline = route.getJSONObject("overview_polyline")
+                val points = overviewPolyline.getString("points")
+                val decodedPath = PolyUtil.decode(points)
+                runOnUiThread {
+                    map.clear() // Limpa o mapa antes de desenhar a nova rota
+                    map.addPolyline(PolylineOptions().addAll(decodedPath).width(12f).color(Color.RED).geodesic(true))
+//                    polyline?.remove()  // Remove the old polyline
+                    polyline = map.addPolyline(
+                        PolylineOptions()
+                            .addAll(decodedPath)
+                            .width(12f)
+                            .color(Color.RED)
+                            .geodesic(true)
+                    )
+                }
+                updateStepsAndInstructions(legs)
+
+                // Aqui atualizamos a lista de passos e a interface do usuário
+                stepsList = mutableListOf<Step>().apply {
+                    val stepsJson = legs.getJSONObject(0).getJSONArray("steps")
+                    for (i in 0 until stepsJson.length()) {
+                        val step = stepsJson.getJSONObject(i)
+                        val instruction = Html.fromHtml(step.getString("html_instructions")).toString()  // Convert HTML to plain text
+                        val distance = step.getJSONObject("distance").getInt("value")
+                        add(Step(instruction, distance))
+                    }
+                }
+
+                // Atualizar a UI com a primeira etapa
+                if (stepsList.isNotEmpty()) {
+                    runOnUiThread {
+                        findViewById<TextView>(R.id.tvNavigationInstruction).text = stepsList.first().instruction
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateStepsAndInstructions(legs: JSONArray) {
+        // Here we parse steps and update UI as before
+        stepsList = mutableListOf<Step>().apply {
+            val stepsJson = legs.getJSONObject(0).getJSONArray("steps")
+            for (i in 0 until stepsJson.length()) {
+                val step = stepsJson.getJSONObject(i)
+                val instruction = Html.fromHtml(step.getString("html_instructions")).toString()
+                val distance = step.getJSONObject("distance").getInt("value")
+                add(Step(instruction, distance))
+            }
+        }
+
+        // Update the UI with the first step
+        if (stepsList.isNotEmpty()) {
+            runOnUiThread {
+                findViewById<TextView>(R.id.tvNavigationInstruction).text = stepsList.first().instruction
+            }
+        }
+    }
+
+    data class Step(val instruction: String, val distance: Int)
+
+    private fun parseDuration(jsonData: String): String {
+        val jsonObject = JSONObject(jsonData)
+        val routes = jsonObject.getJSONArray("routes")
+        if (routes.length() > 0) {
+            val legs = routes.getJSONObject(0).getJSONArray("legs")
+            if (legs.length() > 0) {
+                return legs.getJSONObject(0).getJSONObject("duration").getString("text")
+            }
+        }
+        return "indisponível"
+    }
+
+    private fun getModeDisplayName(mode: String): String {
+        return when (mode) {
+            "driving" -> "Carro"
+            "walking" -> "A pé"
+            "bicycling" -> "Bicicleta"
+            "transit" -> "Transporte Público"
+            else -> mode
+        }
     }
 }

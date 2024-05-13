@@ -32,30 +32,26 @@ class Registo : AppCompatActivity() {
             val senha = binding.Senha.text.toString()
             val numeroStr = binding.Numero.text.toString()
 
-            val numero = numeroStr.toInt()
-
             if (nome.isBlank() || email.isBlank() || senha.isBlank()) {
-                Toast.makeText(
-                    this,
-                    "Por favor, preencha todos os campos corretamente.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }else{
+                Toast.makeText(this, "Por favor, preencha todos os campos corretamente.", Toast.LENGTH_SHORT).show()
+            } else if (numeroStr.length != 9 || numeroStr.toIntOrNull() == null) {
+                Toast.makeText(this, "Certifique-se de que o número tem exatamente 9 dígitos e contém apenas números.", Toast.LENGTH_SHORT).show()
+            } else {
+                val numero = numeroStr.toInt()  // Neste ponto, já sabemos que é um número válido
                 val senhaHash = hashSenha(senha)
                 val utilizador = Utilizador(Nome = nome, Email = email, Senha = senhaHash, Numero = numero, Imagem = "")
 
                 CoroutineScope(Dispatchers.IO).launch {
                     database.UtilizadorDao().inserirUtilizadores(utilizador)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@Registo, "Registado com sucesso!", Toast.LENGTH_SHORT)
-                            .show()
-                        val intent = Intent(this@Registo, Login::class.java)
-                        startActivity(intent)
+                        Toast.makeText(this@Registo, "Registrado com sucesso!", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this@Registo, Login::class.java))
                     }
                 }
             }
         }
     }
+
 
     fun hashSenha(senha: String): String {
         val bytes = senha.toByteArray()

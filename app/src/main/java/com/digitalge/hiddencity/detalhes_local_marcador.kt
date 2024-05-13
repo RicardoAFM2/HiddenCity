@@ -37,6 +37,8 @@ class detalhes_local_marcador : AppCompatActivity() {
     private var lastKnownLocation: Location? = null
     private lateinit var adapter: CommentsAdapter
     private lateinit var recyclerView: RecyclerView
+    private var placeLatitude: Double? = null
+    private var placeLongitude: Double? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,8 +59,26 @@ class detalhes_local_marcador : AppCompatActivity() {
         toggleDescriptionVisibility()
         setupLocationUpdates()
         loadLocalData(placeID)
+        setupDistanceClickListener()
     }
 
+    private fun setupDistanceClickListener() {
+        binding.directionsTextView.setOnClickListener {
+            placeLatitude?.let { lat ->
+                placeLongitude?.let { lng ->
+                    val intent = Intent(this, mapa_caminho::class.java).apply {
+                        putExtra("local_lat", lat)
+                        putExtra("local_lng", lng)
+                        putExtra("place_name", binding.localNameTextView.text.toString())  // Passa o nome do local
+                        Log.d("DetalhesLocalActivity", "Enviando para mapa_caminho: Latitude = $lat, Longitude = $lng, Nome = ${binding.localNameTextView.text}")
+
+
+                    }
+                    startActivity(intent)
+                } ?: Toast.makeText(this, "Localização do local não disponível.", Toast.LENGTH_SHORT).show()
+            } ?: Toast.makeText(this, "Localização do local não disponível.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private fun fetchComments(placeID: String) {
         val db = AppDatabase.getDatabase(this)
@@ -82,6 +102,8 @@ class detalhes_local_marcador : AppCompatActivity() {
                 runOnUiThread {
                     updateUI(it, lastKnownLocation)
                     fetchComments(placeID.toString())
+                    placeLatitude = it.Latitude  // Inicializa placeLatitude
+                    placeLongitude = it.Longitude
                 }
             } ?: run {
                 Toast.makeText(

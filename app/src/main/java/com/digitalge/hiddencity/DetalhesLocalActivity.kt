@@ -70,6 +70,11 @@ class DetalhesLocalActivity : AppCompatActivity() {
         val placeID = intent.getStringExtra("place_id")
         Log.d("DetalhesLocalActivity", "placeID recebido: $placeID")
 
+        binding.switchVisited.setOnClickListener {
+            it.isSelected = !it.isSelected  // Toggle the selection state
+            saveVisitedStatus()
+        }
+
 
         fetchPlaceDetails(placeID)
         setupDistanceClickListener()
@@ -82,8 +87,40 @@ class DetalhesLocalActivity : AppCompatActivity() {
         setupRecyclerView()
     }
 
+
+    private fun saveVisitedStatus() {
+        val placeIdValue = intent.getStringExtra("place_id")
+        if (placeIdValue == null) {
+            return
+        }
+
+        val userId = getUserId()  // Suponha que getUserId() retorna o ID do usuário logado
+
+        lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(applicationContext)
+            db.Favoritos_e_LocaisDao().inserirFavoritos_e_Locais(Favoritos_e_Locais(
+                Nome = binding.localNameTextView.text.toString(),
+                IDlocal = placeIdValue,
+                IdUtilizador = userId,
+            ))
+        }
+    }
+
     private fun setupDistanceClickListener() {
-        binding.localDistanceTextView.setOnClickListener {
+        binding.directionsImage.setOnClickListener {
+            // Garanta que as variáveis placeLatitude e placeLongitude estão armazenando as coordenadas corretas
+            val intent = Intent(this, local_3d::class.java)
+            placeLatitude?.let { lat ->
+                placeLongitude?.let { lng ->
+                    intent.putExtra("local_lat", lat)
+                    intent.putExtra("local_lng", lng)
+                    startActivity(intent)
+                }
+            }
+        }
+
+
+        binding.directionsTextView.setOnClickListener {
             placeLatitude?.let { lat ->
                 placeLongitude?.let { lng ->
                     val intent = Intent(this, mapa_caminho::class.java).apply {
@@ -101,11 +138,15 @@ class DetalhesLocalActivity : AppCompatActivity() {
         }
     }
 
-    private fun openFragmentInMainActivity(fragmentTag: String, userId: Int? = null) {
+
+    private fun openFragmentInMainActivity(fragmentTag: String, userId: Int? = null, userName: String? = null) {
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("OPEN_FRAGMENT", fragmentTag)
             if (userId != null) {
                 putExtra("USER_ID", userId)
+            }
+            if (userName != null) {
+                putExtra("USER_NAME", userName) // Passando o nome do usuário
             }
         }
         startActivity(intent)
@@ -322,7 +363,21 @@ class DetalhesLocalActivity : AppCompatActivity() {
             placeLongitude = it.longitude
             Log.d("DetalhesLocalActivity", "Localização do local: Latitude = $placeLatitude, Longitude = $placeLongitude")
 
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                location?.let { currentLocation ->
+                    val distanceInMeters = SphericalUtil.computeDistanceBetween(
+                        LatLng(currentLocation.latitude, currentLocation.longitude),
+                        it
+                    )
+                    if (distanceInMeters <= 2000) {  // 2000 metros é equivalente a 2 km
+                        binding.switchVisited.visibility = View.VISIBLE
+                    } else {
+                        binding.switchVisited.visibility = View.GONE
+                    }
+                }
+            }
         }
+
 
         // Buscar a localização atual do usuário e calcular a distância
         if (ActivityCompat.checkSelfPermission(

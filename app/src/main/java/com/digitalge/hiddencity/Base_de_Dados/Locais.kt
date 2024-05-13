@@ -2,9 +2,17 @@ package com.digitalge.hiddencity.Base_de_Dados
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "Locais")
+@Entity(tableName = "Locais",
+    foreignKeys = [
+        ForeignKey(
+            entity = Utilizador::class,
+            parentColumns = ["IdUtilizador"],
+            childColumns = ["IdUtilizador"]
+        )
+    ])
 data class Locais(
     @PrimaryKey(autoGenerate = true) val IdLocais: Int = 0,
     @ColumnInfo(name = "Nome") val Nome: String,
@@ -15,5 +23,6 @@ data class Locais(
     @ColumnInfo(name = "Imagens") val Imagens: String,
     @ColumnInfo(name = "Tipo") val Tipo: String,
     @ColumnInfo(name = "nome_uti") val nome_uti: String,
-    @ColumnInfo(name = "privacidade") val privacidade: Int
+    @ColumnInfo(name = "privacidade") val privacidade: Int,
+    @ColumnInfo(name = "IdUtilizador") val IdUtilizador: Int
 )

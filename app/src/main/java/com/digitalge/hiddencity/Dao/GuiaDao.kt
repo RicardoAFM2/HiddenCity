@@ -30,4 +30,7 @@ interface GuiaDao {
     @Query("SELECT * FROM Guia WHERE IdGuia = :guiaId")
     fun getGuiaById(guiaId: Int): Guia?
 
+    @Query("SELECT * FROM Guia WHERE publico = 1 AND IdUtilizador = :userId")
+    fun buscarGuiasPublicosPorUsuario(userId: Int): List<Guia>
+
 }

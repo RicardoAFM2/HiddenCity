@@ -10,6 +10,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <TextView
+        android:id="@+id/tvNavigationInstruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:background="@color/design_default_color_background"
+        android:textColor="@color/black"
+        android:padding="12dp"
+        />
+
     <!-- Barra de Informações na Parte Inferior -->
     <LinearLayout
         android:id="@+id/bottom_info_bar"

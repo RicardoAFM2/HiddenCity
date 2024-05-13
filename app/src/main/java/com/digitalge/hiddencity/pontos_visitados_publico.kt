@@ -4,7 +4,9 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -16,8 +18,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class Pontos_visitados : Fragment(R.layout.fragment_pontos_visitados) {
+class pontos_visitados_publico : Fragment() {
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_pontos_visitados_publico, container, false)
+    }
     private lateinit var adapter: PontoVisitadoAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,11 +54,15 @@ class Pontos_visitados : Fragment(R.layout.fragment_pontos_visitados) {
             }
         })
 
-        loadPontosVisitados()
+        val userId = arguments?.getInt("USER_ID", -1) ?: -1
+        if (userId != -1) {
+            loadPontosVisitados(userId)
+        }
+
+
     }
 
-    private fun loadPontosVisitados() {
-        val userId = getUserId() // Certifique-se de que este método recupere corretamente o ID do usuário
+    private fun loadPontosVisitados(userId: Int) {
         lifecycleScope.launch {
             val pontosVisitados = withContext(Dispatchers.IO) {
                 val db = AppDatabase.getDatabase(requireContext())
@@ -61,7 +74,4 @@ class Pontos_visitados : Fragment(R.layout.fragment_pontos_visitados) {
         }
     }
 
-    private fun getUserId(): Int {
-        return requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).getInt("UteID", -1)
-    }
 }

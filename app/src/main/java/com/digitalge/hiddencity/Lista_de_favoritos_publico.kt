@@ -1,67 +1,84 @@
 package com.digitalge.hiddencity
 
-import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.digitalge.hiddencity.Adapter.PontoVisitadoAdapter
+import com.digitalge.hiddencity.Adapter.FavoritospublicoAdapter
 import com.google.android.libraries.places.api.Places
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class Pontos_visitados : Fragment(R.layout.fragment_pontos_visitados) {
+class Lista_de_favoritos_publico : Fragment(R.layout.fragment_lista_de_favoritos_publico) {
 
-    private lateinit var adapter: PontoVisitadoAdapter
+    private lateinit var adapter: FavoritospublicoAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Setup RecyclerView
         val recyclerView = view.findViewById<RecyclerView>(R.id.results_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        // Inicialize o PlacesClient
+        // Initialize Places API
         if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk") // Substitua YOUR_API_KEY pela sua chave de API
+            Places.initialize(requireContext(), "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
         }
         val placesClient = Places.createClient(requireContext())
 
-        // Crie o adaptador passando o PlacesClient
-        adapter = PontoVisitadoAdapter(emptyList(), placesClient, requireContext())
+        // Initialize adapter and set it to the RecyclerView
+        adapter = FavoritospublicoAdapter(emptyList(), placesClient) { placeId ->
+            navigateToDetails(placeId)
+        }
         recyclerView.adapter = adapter
 
         val searchEditText = view.findViewById<EditText>(R.id.search_edit_text)
         searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+
             override fun afterTextChanged(s: Editable) {
                 adapter.filter(s.toString())
             }
         })
 
-        loadPontosVisitados()
-    }
-
-    private fun loadPontosVisitados() {
-        val userId = getUserId() // Certifique-se de que este método recupere corretamente o ID do usuário
-        lifecycleScope.launch {
-            val pontosVisitados = withContext(Dispatchers.IO) {
-                val db = AppDatabase.getDatabase(requireContext())
-                db.Favoritos_e_LocaisDao().buscarPontosVisitadosPorUsuario(userId)
-            }
-            if (isAdded) { // Verifique se o Fragment ainda está ativo
-                adapter.updatePontos(pontosVisitados)
+        // Load data
+        arguments?.getInt("USER_ID", -1)?.let { userId ->
+            if (userId != -1) {
+                loadFavoritos(userId)
             }
         }
     }
 
-    private fun getUserId(): Int {
-        return requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).getInt("UteID", -1)
+    private fun navigateToDetails(placeId: String) {
+        val intent = Intent(context, DetalhesLocalActivity::class.java).apply {
+            putExtra("place_id", placeId)
+        }
+        startActivity(intent)
+    }
+
+    private fun loadFavoritos(userId: Int) {
+        lifecycleScope.launch {
+            val favoritos = withContext(Dispatchers.IO) {
+                // Supondo que AppDatabase é sua classe de acesso ao banco de dados e FavoritosDao é seu DAO
+                val db = AppDatabase.getDatabase(requireContext())
+                db.FavoritosDao().buscarFavoritosPorUsuario(userId)
+            }
+            // Atualiza a lista no adaptador
+            if (isAdded) { // Verifique se o Fragment ainda está ativo
+                adapter.updateFavoritos(favoritos)
+            }
+        }
     }
 }
+

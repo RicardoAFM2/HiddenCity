@@ -5,6 +5,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -107,6 +108,9 @@ class Mapa : Fragment(), OnMapReadyCallback {
         val sharedPref = requireContext().getSharedPreferences("AppPrefs", AppCompatActivity.MODE_PRIVATE)
         return sharedPref.getString("UteNome", "Utilizador Desconhecido") ?: "Utilizador Desconhecido"
     }
+    private fun getUserId(): Int {
+        return requireContext().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE).getInt("UteID", -1)
+    }
 
 
     private fun salvarLocal(nome: String, descricao: String, tipo: String, isPrivate: Boolean, imagemUri: Uri?) {
@@ -126,7 +130,8 @@ class Mapa : Fragment(), OnMapReadyCallback {
             Imagens = imagemUri.toString(),  // Converter Uri para String
             Tipo = tipo,
             nome_uti = nome_do_uti,  // Este deve ser obtido do contexto de login/usuario
-            privacidade = if (isPrivate) 1 else 0
+            privacidade = if (isPrivate) 1 else 0,
+            IdUtilizador = getUserId()
         )
 
         lifecycleScope.launch {

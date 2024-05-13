@@ -20,4 +20,7 @@ interface Favoritos_e_LocaisDao {
 
     @Delete
     suspend fun Eliminar(Favoritos_e_Locais: Favoritos_e_Locais)
+
+    @Query("SELECT * FROM favoritos_e_locais WHERE IdUtilizador = :userId")
+    fun buscarPontosVisitadosPorUsuario(userId: Int): List<Favoritos_e_Locais>
 }

@@ -15,45 +15,27 @@
         android:src="@drawable/icon_voltar"
         android:contentDescription="@string/voltar_imagem_do_local_com_bot_es_de_navega_o_sobrepostos"/>
 
-    <!-- Botão de favoritos e Switch para local visitado -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:padding="16dp"
-        android:gravity="center_vertical">
-
-        <ImageView
-            android:id="@+id/favorite_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:focusable="true"
-            android:src="@drawable/icon_coracao_selecionar"
-            android:contentDescription="@string/adicionar_aos_favoritos"
-            android:background="?attr/selectableItemBackgroundBorderless" />
-
-        <Switch
-            android:id="@+id/switch_visited"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="10dp"
-            android:visibility="visible"
-            android:text="Visitado" />
-    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/image_frame"
         android:layout_width="match_parent"
         android:layout_height="250dp"
         android:layout_below="@id/back_button">
+
+
         <ImageView
             android:id="@+id/local_image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_background" />
+
+        <ImageView
+            android:id="@+id/directions_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:src="@drawable/icon_3d" />
     </FrameLayout>
 
     <LinearLayout
@@ -94,14 +76,30 @@
             android:layout_marginTop="8dp"/>
 
         <!-- Distância do Local -->
-        <TextView
-            android:id="@+id/local_distance_text_view"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/icon_novopi"
-            android:drawablePadding="4dp"
-            android:text="11 Km da sua localização"
-            android:layout_marginTop="8dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/local_distance_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/icon_novopi"
+                android:layout_weight="1"
+                android:drawablePadding="4dp"
+                android:text="11 Km da sua localização"
+                android:layout_marginTop="5dp"/>
+
+            <TextView
+                android:id="@+id/directions_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ver direções"
+                android:layout_marginTop="3dp"/>
+        </LinearLayout>
 
         <!-- Informações e Comentários na mesma altura -->
         <LinearLayout

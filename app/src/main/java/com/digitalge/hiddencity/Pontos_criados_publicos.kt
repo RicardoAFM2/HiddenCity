@@ -1,25 +1,26 @@
 package com.digitalge.hiddencity
 
-
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.digitalge.hiddencity.Adapter.PontoCriadoAdapter
+import com.digitalge.hiddencity.Base_de_Dados.Utilizador
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+class Pontos_criados_publicos : Fragment(R.layout.fragment_pontos_criados_publicos) {
 
-class Pontos_criados : Fragment(R.layout.fragment_pontos_criados) {
-
+    private lateinit var database: AppDatabase
     private lateinit var adapter: PontoCriadoAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,7 +32,11 @@ class Pontos_criados : Fragment(R.layout.fragment_pontos_criados) {
         adapter = PontoCriadoAdapter(emptyList(), requireContext())
         recyclerView.adapter = adapter
 
-        loadPontosCriados()
+        database = AppDatabase.getDatabase(requireContext())
+        val userId = arguments?.getInt("USER_ID", -1) ?: -1
+        if (userId != -1) {
+            loadPontosCriados(userId)  // Pass the userId to the method
+        }
 
         val searchEditText = view.findViewById<EditText>(R.id.search_edit_text)
         searchEditText.addTextChangedListener(object : TextWatcher {
@@ -43,23 +48,12 @@ class Pontos_criados : Fragment(R.layout.fragment_pontos_criados) {
         })
     }
 
-    private fun loadPontosCriados() {
-        val database = AppDatabase.getDatabase(requireContext())
-        val pontosCriadosDao = database.LocaisDao()
-        val userId = getLoggedInUserName()
-
+    private fun loadPontosCriados(userId: Int) {
         lifecycleScope.launch {
             val pontos = withContext(Dispatchers.IO) {
-                pontosCriadosDao.buscarLocaisPorCriador(userId)
+                database.LocaisDao().buscarLocaisPublicosPorCriador(userId)
             }
             adapter.updatePontos(pontos)
         }
-    }
-
-
-    fun getLoggedInUserName(): String {
-        // Utiliza requireContext() para garantir que o contexto está disponível
-        val sharedPref = requireActivity().getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
-        return sharedPref.getString("UteNome", "Utilizador Desconhecido") ?: "Utilizador Desconhecido"
     }
 }
