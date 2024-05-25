@@ -9,7 +9,7 @@
         android:id="@+id/search_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Pesquisar..."
+        android:hint="Pesquisar pontos de interesse..."
         android:inputType="text"/>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -10,7 +10,7 @@
         android:id="@+id/search_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Pesquisar..."
+        android:hint="Pesquisar guias ..."
         android:inputType="text"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -18,14 +18,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/search_edit_text"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="30dp" />
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_below="@id/search_edit_text"
         android:layout_marginTop="8dp">
+
 
         <TextView
             android:id="@+id/textView"
@@ -33,7 +35,12 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="O teus" />
+            android:text="As minhas guias"
+            android:background="@drawable/line"
+            android:paddingBottom="18dp"
+            android:drawablePadding="2dp"/>
+
+
 
         <TextView
             android:id="@+id/local_comments_text_view"
@@ -41,8 +48,9 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Publicos" />
+            android:text="Guias Publicos" />
     </LinearLayout>
+
 
     <ImageView
         android:id="@+id/mais"

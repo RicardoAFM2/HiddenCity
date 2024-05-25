@@ -5,11 +5,34 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <EditText
+        android:id="@+id/search_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Pesquisar pontos de interesse"
+        android:inputType="text"
+        android:padding="8dp"
+        android:drawablePadding="10dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/places_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/search_input"/>
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPagerImages"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pontos de Interesse Próximos"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:textSize="16sp"/>
 
     <GridLayout
         android:layout_width="match_parent"
@@ -19,6 +42,7 @@
         android:rowCount="4"
         android:alignmentMode="alignMargins"
         android:columnOrderPreserved="false">
+
 
         <!-- Bloco de Monumentos -->
         <LinearLayout

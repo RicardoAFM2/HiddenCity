@@ -16,7 +16,6 @@ import com.bumptech.glide.Glide
 import com.digitalge.hiddencity.AppDatabase
 import com.digitalge.hiddencity.Base_de_Dados.Comentarios
 
-
 class CommentsAdapter(
     private var comments: MutableList<Comentarios>,
     private val lifecycleOwner: LifecycleOwner,
@@ -66,5 +65,11 @@ class CommentsAdapter(
     fun getUserAvatarUrl(userId: Int, context: Context): LiveData<String> {
         return AppDatabase.getDatabase(context).UtilizadorDao().getUserAvatarUrlById(userId)
     }
+
+    fun addComment(comentario: Comentarios) {
+        comments.add(0, comentario)  // Adiciona no início da lista para imediatamente visualizar
+        notifyItemInserted(0)
+    }
 }
+
 

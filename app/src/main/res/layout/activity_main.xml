@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainer"
         android:layout_width="0dp"
@@ -27,6 +26,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+
+
         <ImageView
             android:id="@+id/home"
             android:layout_width="0dp"
@@ -37,7 +38,9 @@
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/icon_casa" />
+            app:srcCompat="@drawable/icon_casa"
+            android:elevation="2dp"
+            android:stateListAnimator="@animator/pulse"/>
 
         <ImageView
             android:id="@+id/guia"

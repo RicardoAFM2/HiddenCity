@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
 import android.text.Html
 import android.util.Log
@@ -44,11 +45,14 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
     private var lastKnownLocation: LatLng? = null
     private var polyline: Polyline? = null
 
+    private var currentMode: String = "walking" // Modo inicial padrão
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var mapFragment: SupportMapFragment
     private var stepsList: List<Step> = emptyList()
+    private val handler = Handler(Looper.getMainLooper())
+    private lateinit var updateRunnable: Runnable
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,11 +69,22 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        findViewById<Button>(R.id.btnDrive).setOnClickListener { updateRoute("driving") }
-        findViewById<Button>(R.id.btnWalk).setOnClickListener { updateRoute("walking") }
-        findViewById<Button>(R.id.btnBike).setOnClickListener { updateRoute("bicycling") }
-        findViewById<Button>(R.id.btnTransit).setOnClickListener { updateRoute("transit") }
-
+        findViewById<Button>(R.id.btnDrive).setOnClickListener {
+            currentMode = "driving"
+            updateRoute(currentMode)
+        }
+        findViewById<Button>(R.id.btnWalk).setOnClickListener {
+            currentMode = "walking"
+            updateRoute(currentMode)
+        }
+        findViewById<Button>(R.id.btnBike).setOnClickListener {
+            currentMode = "bicycling"
+            updateRoute(currentMode)
+        }
+        findViewById<Button>(R.id.btnTransit).setOnClickListener {
+            currentMode = "transit"
+            updateRoute(currentMode)
+        }
         val btnClose = findViewById<ImageView>(R.id.btnClose)
 
         // Defina um OnClickListener para o botão
@@ -77,6 +92,36 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
             // Finaliza a atividade atual e retorna para a anterior na pilha
             onBackPressed()
         }
+
+        updateRunnable = Runnable {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return@Runnable
+            }
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                location?.let {
+                    val currentLocation = LatLng(it.latitude, it.longitude)
+                    updateRouteToDestinations(currentLocation, currentMode)
+                    handler.postDelayed(updateRunnable, 10000)  // Reagendar após 10 segundos
+                }
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        handler.postDelayed(updateRunnable, 10000)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        handler.removeCallbacks(updateRunnable)
     }
 
     private fun updateRoute(mode: String) {
@@ -102,6 +147,37 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+
+
+    private fun updateRouteToDestinations(currentLocation: LatLng, mode: String) {
+        val destinationLat = intent.getDoubleExtra("local_lat", 0.0)
+        val destinationLng = intent.getDoubleExtra("local_lng", 0.0)
+        val destination = LatLng(destinationLat, destinationLng)
+
+        // Calcula a distância entre a localização atual e o destino
+        val results = FloatArray(1)
+        Location.distanceBetween(
+            currentLocation.latitude, currentLocation.longitude,
+            destination.latitude, destination.longitude,
+            results
+        )
+
+        if (results[0] <= 2) {  // Verifica se está dentro de 2 metros
+            showArrivalPopup()
+        } else {
+            if (shouldRecalculateRoute(currentLocation)) {
+                Log.d("MapActivity", "Recalculating route as user is off the current path.")
+                drawRoute(currentLocation, destination, currentMode)
+            }
+        }
+    }
+
+    private fun shouldRecalculateRoute(currentLocation: LatLng): Boolean {
+        val polylinePoints = polyline?.points ?: return true  // Assume recalculation if no polyline exists
+
+        // Check if user is off the path. Increase tolerance if needed.
+        return !PolyUtil.isLocationOnPath(currentLocation, polylinePoints, true, 1.0)
+    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
@@ -254,6 +330,7 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
 
 
     private fun drawRoute(origin: LatLng, destination: LatLng, mode: String) {
+        polyline?.remove()
         val apiKey = "AIzaSyAY0UR5MevkM3u9EvJ-cgVqXjBH66uF5y0" // Substitua pela sua chave da API
         val modeDisplayName = getModeDisplayName(mode)
         // Incluindo o parâmetro de idioma na URL
@@ -268,14 +345,18 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
 
             override fun onResponse(call: Call, response: Response) {
                 val jsonData = response.body?.string()
+
                 if (response.isSuccessful && jsonData != null) {
                     val duration = parseDuration(jsonData)
+                    val path = parseRoute(jsonData)
                     runOnUiThread {
                         val firstStep = stepsList.firstOrNull()
                         findViewById<TextView>(R.id.tvNavigationInstruction).text = firstStep?.instruction ?: "Inicie sua rota"
                         val tvEstimatedTime = findViewById<TextView>(R.id.tvEstimatedTime)
                         tvEstimatedTime.text = "Tempo estimado: $duration, Modo: $modeDisplayName"
                         drawPath(jsonData)
+
+
                     }
                 }
             }
@@ -293,16 +374,7 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
                 val points = overviewPolyline.getString("points")
                 val decodedPath = PolyUtil.decode(points)
                 runOnUiThread {
-                    map.clear() // Limpa o mapa antes de desenhar a nova rota
-                    map.addPolyline(PolylineOptions().addAll(decodedPath).width(12f).color(Color.RED).geodesic(true))
-//                    polyline?.remove()  // Remove the old polyline
-                    polyline = map.addPolyline(
-                        PolylineOptions()
-                            .addAll(decodedPath)
-                            .width(12f)
-                            .color(Color.RED)
-                            .geodesic(true)
-                    )
+                    handleRouteResponse(jsonData)
                 }
                 updateStepsAndInstructions(legs)
 
@@ -325,6 +397,30 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
+    }
+
+    private fun handleRouteResponse(jsonData: String) {
+        val points = parseRoute(jsonData)
+        runOnUiThread {
+            polyline?.remove()  // Remove old route
+            polyline = map.addPolyline(PolylineOptions().addAll(points).color(Color.RED).width(12f))
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(LatLngBounds.builder().include(points.first()).include(points.last()).build(), 100))
+        }
+    }
+
+    private fun parseRoute(jsonData: String): List<LatLng> {
+        val jsonObject = JSONObject(jsonData)
+        val routes = jsonObject.getJSONArray("routes")
+        val legs = routes.getJSONObject(0).getJSONArray("legs")
+        val steps = legs.getJSONObject(0).getJSONArray("steps")
+        val path = ArrayList<LatLng>()
+
+        for (i in 0 until steps.length()) {
+            val step = steps.getJSONObject(i)
+            val polyline = step.getJSONObject("polyline").getString("points")
+            path.addAll(PolyUtil.decode(polyline))
+        }
+        return path
     }
 
     private fun updateStepsAndInstructions(legs: JSONArray) {

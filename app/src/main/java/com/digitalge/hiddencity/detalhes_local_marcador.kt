@@ -55,12 +55,17 @@ class detalhes_local_marcador : AppCompatActivity() {
 
 
 
+
+
         setupRecyclerView()
         toggleDescriptionVisibility()
         setupLocationUpdates()
         loadLocalData(placeID)
         setupDistanceClickListener()
     }
+
+
+
 
     private fun setupDistanceClickListener() {
         binding.directionsTextView.setOnClickListener {
@@ -77,6 +82,17 @@ class detalhes_local_marcador : AppCompatActivity() {
                     startActivity(intent)
                 } ?: Toast.makeText(this, "Localização do local não disponível.", Toast.LENGTH_SHORT).show()
             } ?: Toast.makeText(this, "Localização do local não disponível.", Toast.LENGTH_SHORT).show()
+        }
+        binding.directionsImage.setOnClickListener {
+            // Garanta que as variáveis placeLatitude e placeLongitude estão armazenando as coordenadas corretas
+            val intent = Intent(this, local_3d::class.java)
+            placeLatitude?.let { lat ->
+                placeLongitude?.let { lng ->
+                    intent.putExtra("local_lat", lat)
+                    intent.putExtra("local_lng", lng)
+                    startActivity(intent)
+                }
+            }
         }
     }
 

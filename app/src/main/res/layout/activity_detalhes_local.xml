@@ -61,13 +61,16 @@
             android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_background" />
 
+
         <ImageView
             android:id="@+id/directions_image"
-            android:layout_width="wrap_content"
+            android:layout_width="35dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:background="@android:color/white"
+            android:contentDescription="@string/directions"
             android:src="@drawable/icon_3d" />
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -144,14 +147,14 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Informações" />
+                android:text="Informações"/>
 
             <TextView
                 android:id="@+id/local_comments_text_view"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="0 Comentários" />
+                android:text="Comentários" />
         </LinearLayout>
 
         <!-- Descrição do Local -->

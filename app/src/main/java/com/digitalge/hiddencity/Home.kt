@@ -1,22 +1,35 @@
 package com.digitalge.hiddencity
 
 
+import android.animation.Animator
+import android.animation.AnimatorInflater
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.digitalge.hiddencity.Adapter.PlaceInfo
+import com.digitalge.hiddencity.Adapter.PlacesAdapter
 import com.digitalge.hiddencity.Imagens.ImageSliderAdapter
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.api.net.FetchPhotoRequest
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 
 
@@ -27,8 +40,38 @@ class Home : Fragment(R.layout.fragment_home) {
     private var images: MutableList<Bitmap> = mutableListOf()
     private var placeIds: MutableList<String> = mutableListOf()
 
+
+
+
+
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val searchInput: EditText = view.findViewById(R.id.search_input)
+        val placesRecyclerView: RecyclerView = view.findViewById(R.id.places_recycler_view)
+
+
+
+        val placesAdapter = PlacesAdapter(emptyList(), this::onPlaceClicked)
+        placesRecyclerView.adapter = placesAdapter
+        placesRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        searchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (s.isNullOrEmpty()) {
+                    placesRecyclerView.visibility = View.GONE // Oculta o RecyclerView quando não há texto
+                } else {
+                    placesRecyclerView.visibility = View.VISIBLE // Mostra o RecyclerView quando há texto
+                    searchPlaces(s.toString(), placesAdapter)
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+        placesRecyclerView.visibility = View.GONE
 
         if (!Places.isInitialized()) {
             Places.initialize(requireContext(), "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
@@ -54,6 +97,29 @@ class Home : Fragment(R.layout.fragment_home) {
 
     }
 
+
+    private fun searchPlaces(query: String, adapter: PlacesAdapter) {
+        val request = FindAutocompletePredictionsRequest.builder()
+            .setQuery(query)
+            .build()
+
+        placesClient.findAutocompletePredictions(request).addOnSuccessListener { response ->
+            val places = response.autocompletePredictions.map {
+                PlaceInfo(it.getPrimaryText(null).toString(), it.placeId)
+            }
+            adapter.updateData(places)
+        }.addOnFailureListener { e ->
+            Log.e("API_ERROR", "Error fetching places: ${e.message}")
+        }
+    }
+
+    private fun onPlaceClicked(placeInfo: PlaceInfo) {
+        // Ação ao clicar em um lugar, pode abrir uma nova Activity com detalhes do lugar
+        val intent = Intent(activity, DetalhesLocalActivity::class.java)
+        intent.putExtra("place_id", placeInfo.id)
+        startActivity(intent)
+    }
+
     private fun clicar() {
         val monumentosLayout = view?.findViewById<LinearLayout>(R.id.Monumentos)
         if (monumentosLayout != null) {
@@ -77,7 +143,7 @@ class Home : Fragment(R.layout.fragment_home) {
         if (HotéisLayout != null) {
             HotéisLayout.setOnClickListener {
                 // Iniciar a Activity que mostra os detalhes dos monumentos
-                val intent = Intent(activity, Museus::class.java)
+                val intent = Intent(activity, hoteis::class.java)
                 startActivity(intent)
 
             }
@@ -87,7 +153,7 @@ class Home : Fragment(R.layout.fragment_home) {
         if (RestaurantesLayout != null) {
             RestaurantesLayout.setOnClickListener {
                 // Iniciar a Activity que mostra os detalhes dos monumentos
-                val intent = Intent(activity, Museus::class.java)
+                val intent = Intent(activity, Restaurantes::class.java)
                 startActivity(intent)
 
             }
@@ -168,5 +234,13 @@ class Home : Fragment(R.layout.fragment_home) {
         handler.postDelayed(runnable, 3000)
     }
 
-}
+    override fun onResume() {
+        super.onResume()
+        // Limpa o campo de busca e oculta o RecyclerView quando o fragmento é retomado
+        val searchInput: EditText = view?.findViewById(R.id.search_input) ?: return
+        val placesRecyclerView: RecyclerView = view?.findViewById(R.id.places_recycler_view) ?: return
 
+        searchInput.text.clear() // Limpa o texto
+        placesRecyclerView.visibility = View.GONE // Oculta o RecyclerView
+    }
+}

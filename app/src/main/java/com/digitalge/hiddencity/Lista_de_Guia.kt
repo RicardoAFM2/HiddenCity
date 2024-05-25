@@ -73,6 +73,8 @@ class Lista_de_Guia: Fragment() {
 
 
 
+
+
         recyclerView = view.findViewById(R.id.recyclerViewGuia)
         trashButton = view.findViewById(R.id.trash_icon)
         trashButton.visibility = View.INVISIBLE

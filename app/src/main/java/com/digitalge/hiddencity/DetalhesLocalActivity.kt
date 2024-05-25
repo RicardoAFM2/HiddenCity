@@ -76,6 +76,8 @@ class DetalhesLocalActivity : AppCompatActivity() {
         }
 
 
+
+
         fetchPlaceDetails(placeID)
         setupDistanceClickListener()
         fetchPlaceDetails(placeID)
@@ -241,7 +243,6 @@ class DetalhesLocalActivity : AppCompatActivity() {
             return
         }
 
-
         val novoComentario = Comentarios(
             PlaceID = placeIdValuecom,
             Nome = Nome,
@@ -259,20 +260,24 @@ class DetalhesLocalActivity : AppCompatActivity() {
                     binding.commentInput.text.clear() // Limpa o campo de comentário
                     Toast.makeText(
                         applicationContext,
-                        "Comentário salvo com sucesso.",
+                        "Comentário guardado com sucesso.",
                         Toast.LENGTH_SHORT
                     ).show()
+
+                    // Atualize a lista de comentários e notifique o adapter
+                    adapter.addComment(novoComentario)
                 } else {
                     // Houve um erro ao salvar o comentário.
                     Toast.makeText(
                         applicationContext,
-                        "Erro ao salvar o comentário.",
+                        "Erro ao guardar o comentário.",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             }
         }
     }
+
 
     private fun clicarimagem(){
         binding.backButton.setOnClickListener { onBackPressed() }
@@ -298,7 +303,6 @@ class DetalhesLocalActivity : AppCompatActivity() {
             it.isSelected = !it.isSelected
             val placeIdValue = intent.getStringExtra("place_id")
             if (placeIdValue == null) {
-                Toast.makeText(applicationContext, "Erro: ID do local não está disponível.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -331,7 +335,6 @@ class DetalhesLocalActivity : AppCompatActivity() {
 
     private fun fetchPlaceDetails(placeId: String?){
         if (placeId == null) {
-            Toast.makeText(this, "ID do local não foi fornecido.", Toast.LENGTH_LONG).show()
             finish()
             return
         }
@@ -369,7 +372,7 @@ class DetalhesLocalActivity : AppCompatActivity() {
                         LatLng(currentLocation.latitude, currentLocation.longitude),
                         it
                     )
-                    if (distanceInMeters <= 2000) {  // 2000 metros é equivalente a 2 km
+                    if (distanceInMeters <= 150) {  // 2000 metros é equivalente a 2 km
                         binding.switchVisited.visibility = View.VISIBLE
                     } else {
                         binding.switchVisited.visibility = View.GONE
@@ -483,7 +486,7 @@ class DetalhesLocalActivity : AppCompatActivity() {
     }
 
     private fun updateUIWithLocation(location: Location) {
-        Toast.makeText(this, "Location: ${location.latitude}, ${location.longitude}", Toast.LENGTH_LONG).show()
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

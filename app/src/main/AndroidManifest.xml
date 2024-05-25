@@ -35,7 +35,8 @@
             android:exported="false" />
         <activity
             android:name=".detalhes_local_marcador"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".Guia_cont_publico"
             android:exported="false" />
@@ -50,7 +51,7 @@
             android:exported="false" />
         <activity
             android:name=".DetalhesLocalActivity"
-            android:exported="false" />
+            android:windowSoftInputMode="adjustPan"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
