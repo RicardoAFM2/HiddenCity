@@ -35,7 +35,7 @@ class Lista_de_Favoritos : Fragment(R.layout.fragment_lista_de_favoritos) {
         binding = FragmentListaDeFavoritosBinding.bind(view)
 
         if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
+            Places.initialize(requireContext(), "")
         }
         placesClient = Places.createClient(requireContext())
 

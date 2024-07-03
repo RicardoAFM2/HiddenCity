@@ -53,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
             .commit()
-        binding.tituloPag.text = fragmentTitle  // Atualizar o título da página
     }
 
 

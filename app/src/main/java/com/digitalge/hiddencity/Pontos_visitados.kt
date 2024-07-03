@@ -28,7 +28,7 @@ class Pontos_visitados : Fragment(R.layout.fragment_pontos_visitados) {
 
         // Inicialize o PlacesClient
         if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk") // Substitua YOUR_API_KEY pela sua chave de API
+            Places.initialize(requireContext(), "") // Substitua YOUR_API_KEY pela sua chave de API
         }
         val placesClient = Places.createClient(requireContext())
 

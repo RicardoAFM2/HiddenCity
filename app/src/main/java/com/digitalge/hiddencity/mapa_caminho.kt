@@ -331,7 +331,7 @@ class mapa_caminho : AppCompatActivity(), OnMapReadyCallback {
 
     private fun drawRoute(origin: LatLng, destination: LatLng, mode: String) {
         polyline?.remove()
-        val apiKey = "AIzaSyAY0UR5MevkM3u9EvJ-cgVqXjBH66uF5y0" // Substitua pela sua chave da API
+        val apiKey = "" // Substitua pela sua chave da API
         val modeDisplayName = getModeDisplayName(mode)
         // Incluindo o parâmetro de idioma na URL
         val url = "https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&mode=$mode&language=pt-BR&key=$apiKey"

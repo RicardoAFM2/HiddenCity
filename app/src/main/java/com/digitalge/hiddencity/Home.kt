@@ -74,7 +74,7 @@ class Home : Fragment(R.layout.fragment_home) {
         placesRecyclerView.visibility = View.GONE
 
         if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
+            Places.initialize(requireContext(), "")
 
         }
 

@@ -31,7 +31,7 @@ class Lista_de_favoritos_publico : Fragment(R.layout.fragment_lista_de_favoritos
 
         // Initialize Places API
         if (!Places.isInitialized()) {
-            Places.initialize(requireContext(), "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
+            Places.initialize(requireContext(), "")
         }
         val placesClient = Places.createClient(requireContext())
 

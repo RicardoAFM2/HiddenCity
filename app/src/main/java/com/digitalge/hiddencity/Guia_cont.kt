@@ -51,7 +51,7 @@ class Guia_cont : AppCompatActivity() {
         val guiaId = intent.getIntExtra("NOME_DO_CRIADOR", -1)
 
         if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
+            Places.initialize(applicationContext, "")
         }
         placesClient = Places.createClient(this)
 

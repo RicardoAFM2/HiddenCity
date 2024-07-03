@@ -22,10 +22,10 @@ class Definicoes : AppCompatActivity() {
         setContentView(binding.root)
 
         //Mudar o texto para Privasidade
-        binding.Privasidade.textViewItem.text = "Privasidade"
+        binding.Privasidade.textViewItem.text = "Privacidade"
 
         //Mudar o texto para Prenser formulario
-        binding.PrenserFormulario.textViewItem.text = "Prenser formulário"
+        binding.PrenserFormulario.textViewItem.text = "Preencher formulário"
 
         //Mudar o texto para Modificar dados
         binding.ModificarDados.textViewItem.text = "Modificar dados"

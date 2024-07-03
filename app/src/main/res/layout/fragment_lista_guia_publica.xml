@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="As minhas guias" />
+            android:text="Guias criados" />
 
         <TextView
             android:id="@+id/local_comments_text_view"

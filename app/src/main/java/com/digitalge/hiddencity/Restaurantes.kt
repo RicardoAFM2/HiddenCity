@@ -44,7 +44,7 @@ class Restaurantes : AppCompatActivity() {
         setContentView(R.layout.activity_restaurantes)
 
         if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
+            Places.initialize(applicationContext, "")
         }
         placesClient = Places.createClient(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)

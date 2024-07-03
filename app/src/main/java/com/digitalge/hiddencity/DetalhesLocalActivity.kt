@@ -62,7 +62,7 @@ class DetalhesLocalActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, "AIzaSyBVi-bKsuRs9Av2eLSrAmGprQuxkUqt4Mk")
+            Places.initialize(applicationContext, "")
         }
         placesClient = Places.createClient(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
