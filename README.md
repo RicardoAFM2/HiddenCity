@@ -10,6 +10,8 @@ Imagens / Screenshots
 
 <img width="277" height="496" alt="Captura de ecrã 2024-04-10 192617" src="https://github.com/user-attachments/assets/545a5d02-5ca1-488e-a2b4-0267bb432a8d" />
 
+
+
 Funcionalidades principais / Key features
 
 PT:
