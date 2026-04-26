@@ -41,7 +41,7 @@ O que precisas de ter instalado / Prerequisites
 Como pôr a funcionar / How to get it working
 
 PT:
-1.	git clone https://github.com/RicardoAFM2/HiddenCity.git
+1.	"git clone https://github.com/RicardoAFM2/HiddenCity.git"
 2.	Importa o projeto selecionando a pasta HiddenCity no Android Studio.
 3.	Abre o ficheiro local.properties (na raiz do projeto) e adiciona a tua chave: MAPS_API_KEY=A_TUA_CHAVE_AQUI
 4.	Clica em "Sync Project with Gradle Files" e aguarda que o Android Studio descarregue as dependências.
@@ -49,7 +49,7 @@ PT:
 
 
 EN:
-1.	git clone https://github.com/RicardoAFM2/HiddenCity.git
+1.	"git clone https://github.com/RicardoAFM2/HiddenCity.git"
 2.	Import the project by selecting the HiddenCity folder in Android Studio.
 3.	Open the local.properties file (in the project root) and add your key: MAPS_API_KEY=YOUR_KEY_HERE
 4.	Click ‘Sync Project with Gradle Files’ and wait for Android Studio to download the dependencies.
