@@ -8,9 +8,6 @@ HiddenCity is a native mobile application designed to help users discover and ex
 
 Imagens / Screenshots
 
-
-<img width="1080" height="2340" alt="HiddenCity" src="https://github.com/user-attachments/assets/1596b98a-596e-48f9-9b57-347cac4686ee" />
-
 <img width="277" height="496" alt="Captura de ecrã 2024-04-10 192617" src="https://github.com/user-attachments/assets/545a5d02-5ca1-488e-a2b4-0267bb432a8d" />
 
 Funcionalidades principais / Key features
